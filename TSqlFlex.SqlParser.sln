@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30626.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSqlFlex.SqlParser", "TSqlFlex.SqlParser\TSqlFlex.SqlParser.csproj", "{7633E837-631C-49BD-9264-C9B46E1D02B8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSqlFlex.SqlParser.Tests", "TSqlFlex.SqlParser.Tests\TSqlFlex.SqlParser.Tests.csproj", "{C95C7CC7-59BB-4A4E-ADAE-9272BB145EC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spike", "Spike\Spike.csproj", "{2DE449CB-81B9-4735-B058-8E4828E26CE6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{C95C7CC7-59BB-4A4E-ADAE-9272BB145EC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C95C7CC7-59BB-4A4E-ADAE-9272BB145EC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C95C7CC7-59BB-4A4E-ADAE-9272BB145EC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DE449CB-81B9-4735-B058-8E4828E26CE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DE449CB-81B9-4735-B058-8E4828E26CE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DE449CB-81B9-4735-B058-8E4828E26CE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DE449CB-81B9-4735-B058-8E4828E26CE6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

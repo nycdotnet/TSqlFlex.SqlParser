@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -24,26 +22,12 @@ namespace TSqlFlex.SqlParser.Tests
         [Test()]
         public void SqlBatch_ReturnsSameBatchTextAsPassed()
         {
-            string s = Load_SimpleSelect();
+            string s = StaticFiles.SimpleSelect();
             SqlBatch b = new SqlBatch(s);
             
             Assert.AreEqual(s, b.BatchText());
             Assert.AreEqual(21, b.BatchText().Length, "expected this specific length because that's what is in the file.");
         }
 
-
-
-        private string Load_SimpleSelect()
-        {
-            string resourceName = "TSqlFlex.SqlParser.Tests.SqlScripts.SimpleSelect.sql";
-            string result;
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                result = reader.ReadToEnd();
-            }
-            return result;
-        }
     }
 }
