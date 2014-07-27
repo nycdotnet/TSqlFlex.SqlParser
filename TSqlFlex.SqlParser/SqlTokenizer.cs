@@ -38,23 +38,17 @@ namespace TSqlFlex.SqlParser
 
                 lineNumber += 1;
 
-                SqlToken currentToken = null;
 
                 int charIndex = 0;
                 while (charIndex < line.Length)
                 {
-                    if (currentToken == null)
-                    {
-                        currentToken = new SqlToken(line.Substring(charIndex, line.Length - charIndex).ToCharArray(), charIndex+1, lineNumber);
-                    }
-
-                    charIndex += currentToken.Length;
-                    tokens.Add(currentToken);
-                    currentToken = null;
+                    List<SqlToken> newTokens = SqlToken.ExtractTokens(line.Substring(charIndex, line.Length - charIndex).ToCharArray(), lineNumber, charIndex + 1).ToList<SqlToken>();
+                    charIndex += LengthOfTokens(newTokens);
+                    tokens.AddRange(newTokens);
                 }
                 if (!sql.EndOfStream)
                 {
-                    var newLineToken = new SqlToken(SqlToken.TokenTypes.Newline, line.Length+1, lineNumber);
+                    var newLineToken = new SqlToken(SqlToken.TokenTypes.Newline, lineNumber, line.Length + 1);
                     newLineToken.Text = "\r\n";
                     tokens.Add(newLineToken);
                 }
@@ -63,6 +57,16 @@ namespace TSqlFlex.SqlParser
             } while (!sql.EndOfStream);
 
             return tokens;
+        }
+
+        static private int LengthOfTokens(IEnumerable<SqlToken> tokens)
+        {
+            int total = 0;
+            foreach (var item in tokens)
+            {
+                total += item.Length;
+            }
+            return total;
         }
     }
 }

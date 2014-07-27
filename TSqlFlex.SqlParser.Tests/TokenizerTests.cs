@@ -40,10 +40,30 @@ namespace TSqlFlex.SqlParser.Tests
             var expected = new List<SqlToken>();
             expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 1));
             expected[0].Text = "  ";
-            expected.Add(new SqlToken(SqlToken.TokenTypes.Newline, 3, 1));
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Newline, 1, 3));
             expected[1].Text = "\r\n";
-            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 2));
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 2, 1));
             expected[2].Text = " ";
+            var actual = await actualTask;
+
+            AssertArePropertiesEqual(expected, actual);
+        }
+
+        [Test()]
+        public async void WhenPassedWhitespaceThenLineComment_ReturnsCorrectResult()
+        {
+            var actualTask = SqlTokenizer.TokenizeAsync("   --This is a comment\n ");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 1));
+            expected[0].Text = "   ";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.LineCommentStart, 1, 4));
+            expected[1].Text = "--";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.LineCommentBody, 1, 6));
+            expected[2].Text = "This is a comment";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Newline, 1, 23));
+            expected[3].Text = "\r\n";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 2, 1));
+            expected[4].Text = " ";
             var actual = await actualTask;
 
             AssertArePropertiesEqual(expected, actual);
@@ -56,7 +76,7 @@ namespace TSqlFlex.SqlParser.Tests
             var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
             var expectedJson = serializer.Serialize(expected);
             var actualJson = serializer.Serialize(actual);
-            Assert.AreEqual(expectedJson, actualJson, "expected: " + expectedJson + "\r\n" + "actual:   " + actualJson);
+            Assert.AreEqual(expectedJson, actualJson, "expected: " + expectedJson + "\r\n" + "  actual:   " + actualJson);
         }
     }
 }

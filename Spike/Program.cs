@@ -16,16 +16,19 @@ namespace Spike
 
         static async void DoStuff()
         {
-            var actualTask = SqlTokenizer.TokenizeAsync("  \n ");
+            var actualTask = SqlTokenizer.TokenizeAsync("   --This is a comment\n ");
             var expected = new List<SqlToken>();
             expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 1));
-            expected[0].Text = "  ";
-            expected.Add(new SqlToken(SqlToken.TokenTypes.Newline, 3, 1));
-            expected[1].Text = "\n";
-            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 2));
-            expected[2].Text = " ";
+            expected[0].Text = "   ";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.LineCommentStart, 1, 4));
+            expected[1].Text = "--";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.LineCommentBody, 1, 6));
+            expected[2].Text = "This is a comment";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Newline, 1, 23));
+            expected[3].Text = "\r\n";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 2, 1));
+            expected[4].Text = " ";
             var actual = await actualTask;
-            
             //Assert.AreEqual(expected, actual);
             Console.Write(actual[0].StartCharacterIndex);
             //Assert.AreEqual(expected, actual);
