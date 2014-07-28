@@ -50,6 +50,18 @@ namespace TSqlFlex.SqlParser.Tests
         }
 
         [Test()]
+        public async void LineCommentWithNoBody_ReturnsNoBody()
+        {
+            var actualTask = SqlTokenizer.TokenizeAsync("--");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.LineCommentStart, 1, 1));
+            expected[0].Text = "--";
+            var actual = await actualTask;
+
+            AssertArePropertiesEqual(expected, actual);
+        }
+
+        [Test()]
         public async void WhenPassedWhitespaceThenLineComment_ReturnsCorrectResult()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("   --This is a comment\n ");
@@ -69,6 +81,21 @@ namespace TSqlFlex.SqlParser.Tests
             AssertArePropertiesEqual(expected, actual);
         }
 
+        [Test()]
+        public async void SimpleBlockComment_ReturnsCorrectResult()
+        {
+            var actualTask = SqlTokenizer.TokenizeAsync("/*test*/");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentStart, 1, 1));
+            expected[0].Text = "/*";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentBody, 1, 3));
+            expected[1].Text = "test";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentEnd, 1, 7));
+            expected[2].Text = "*/";
+            var actual = await actualTask;
+
+            AssertArePropertiesEqual(expected, actual);
+        }
 
         //Thanks: http://stackoverflow.com/questions/318210/compare-equality-between-two-objects-in-nunit/
         public static void AssertArePropertiesEqual(object expected, object actual)

@@ -37,8 +37,7 @@ namespace TSqlFlex.SqlParser
                 }
 
                 lineNumber += 1;
-
-
+                
                 int charIndex = 0;
                 while (charIndex < line.Length)
                 {
