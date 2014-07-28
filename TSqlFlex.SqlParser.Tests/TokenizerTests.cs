@@ -97,6 +97,31 @@ namespace TSqlFlex.SqlParser.Tests
             AssertArePropertiesEqual(expected, actual);
         }
 
+        [Test()]
+        public async void MultilineBlockComment_ReturnsCorrectResult()
+        {
+            var actualTask = SqlTokenizer.TokenizeAsync("/* \n test\n */");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentStart, 1, 1));
+            expected[0].Text = "/*";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentBody, 1, 3));
+            expected[1].Text = " ";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Newline, 1, 3));
+            expected[2].Text = "\r\n";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentBody, 2, 1));
+            expected[3].Text = " test";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Newline, 2, 6));
+            expected[4].Text = "\r\n";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentBody, 3, 1));
+            expected[5].Text = " ";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentEnd, 3, 2));
+            expected[6].Text = "*/";
+            var actual = await actualTask;
+
+            AssertArePropertiesEqual(expected, actual);
+        }
+
+
         //Thanks: http://stackoverflow.com/questions/318210/compare-equality-between-two-objects-in-nunit/
         public static void AssertArePropertiesEqual(object expected, object actual)
         {
