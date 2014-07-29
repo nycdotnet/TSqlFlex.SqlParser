@@ -100,7 +100,7 @@ namespace TSqlFlex.SqlParser.Tests
         [Test()]
         public async void MultilineBlockComment_ReturnsCorrectResult()
         {
-            var actualTask = SqlTokenizer.TokenizeAsync("/* \n test\n */");
+            var actualTask = SqlTokenizer.TokenizeAsync("/* \n test\n */ ");
             var expected = new List<SqlToken>();
             expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentStart, 1, 1));
             expected[0].Text = "/*";
@@ -116,6 +116,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[5].Text = " ";
             expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentEnd, 3, 2));
             expected[6].Text = "*/";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 3, 4));
+            expected[7].Text = " ";
             var actual = await actualTask;
 
             AssertArePropertiesEqual(expected, actual);

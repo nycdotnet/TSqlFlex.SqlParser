@@ -36,9 +36,16 @@ namespace TSqlFlex.SqlParser
         /// </summary>
         public bool IsOpen { get; set; }
 
-        static public IList<SqlToken> ExtractTokens(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex)
+        static public IList<SqlToken> ExtractTokens(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex, SqlToken openTokenIfAny)
         {
-            if (isWhitespace(charsToEvaluate))
+            if (openTokenIfAny != null)
+            {
+                if (openTokenIfAny.TokenType == TokenTypes.BlockCommentStart)
+                {
+                    return ExtractBlockCommentTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
+                }
+            }
+            else if (isWhitespace(charsToEvaluate))
             {
                 return ExtractWhitespaceTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
             }
@@ -65,34 +72,56 @@ namespace TSqlFlex.SqlParser
 
         private static IList<SqlToken> ExtractBlockCommentTokens(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex)
         {
-            const int BLOCK_COMMENT_TOKEN_LENGTH = 2;
+            const string BLOCK_COMMENT_START = "/*";
+            const string BLOCK_COMMENT_END = "*/";
             List<SqlToken> tokens = new List<SqlToken>();
-            
-            var t = new SqlToken(TokenTypes.BlockCommentStart, oneBasedLineNumber, oneBasedStartCharacterIndex);
-            t.Text = "/*";
-            tokens.Add(t);
-            if (charsToEvaluate.Length > BLOCK_COMMENT_TOKEN_LENGTH)
+
+            int offset = 0;
+            SqlToken t;
+
+            if (isBlockCommentStart(charsToEvaluate)) { 
+                t = new SqlToken(TokenTypes.BlockCommentStart, oneBasedLineNumber, oneBasedStartCharacterIndex);
+                t.Text = BLOCK_COMMENT_START;
+                offset += BLOCK_COMMENT_START.Length;
+                tokens.Add(t);
+            }
+
+            if (charsToEvaluate.Length > offset)
             {
-                for (int i = BLOCK_COMMENT_TOKEN_LENGTH; i < charsToEvaluate.Length - 1; i += 1)
+                for (int i = offset; i < charsToEvaluate.Length - 1; i += 1)
                 {
                     if (isBlockCommentEnd(charsToEvaluate, i))
                     {
-                        t = new SqlToken(TokenTypes.BlockCommentBody, oneBasedLineNumber, oneBasedStartCharacterIndex + BLOCK_COMMENT_TOKEN_LENGTH);
-                        t.Text = new String(charsToEvaluate, BLOCK_COMMENT_TOKEN_LENGTH, i - BLOCK_COMMENT_TOKEN_LENGTH);
+                        t = new SqlToken(TokenTypes.BlockCommentBody, oneBasedLineNumber, oneBasedStartCharacterIndex + offset);
+                        t.Text = new String(charsToEvaluate, offset, i - BLOCK_COMMENT_END.Length);
                         tokens.Add(t);
                         t = new SqlToken(TokenTypes.BlockCommentEnd, oneBasedLineNumber, i + 1);
-                        t.Text = "*/";
+                        t.Text = BLOCK_COMMENT_END;
                         tokens.Add(t);
                         return tokens;
                     }
                 }
-                tokens.Last().IsOpen = true;
-                t = new SqlToken(TokenTypes.BlockCommentBody, oneBasedLineNumber, oneBasedStartCharacterIndex + BLOCK_COMMENT_TOKEN_LENGTH);
-                t.Text = new String(charsToEvaluate, BLOCK_COMMENT_TOKEN_LENGTH, charsToEvaluate.Length - BLOCK_COMMENT_TOKEN_LENGTH);
+                //We didn't find a block comment end (*/)
+
+                //hack: fix this.
+                var blockCommentStart = tokens.Where(tok => tok.TokenType == TokenTypes.BlockCommentStart);
+                foreach (var bcs in blockCommentStart)
+                {
+                    bcs.IsOpen = true;
+                }
+                
+                t = new SqlToken(TokenTypes.BlockCommentBody, oneBasedLineNumber, oneBasedStartCharacterIndex + offset);
+                t.Text = new String(charsToEvaluate, offset, charsToEvaluate.Length - offset);
                 tokens.Add(t);
                 return tokens;
             }
-            tokens.Last().IsOpen = true;
+
+            //hack: fix this.
+            var blockCommentStart1 = tokens.Where(tok => tok.TokenType == TokenTypes.BlockCommentStart);
+            foreach (var bcs in blockCommentStart1)
+            {
+                bcs.IsOpen = true;
+            }
             return tokens;
         }
 
