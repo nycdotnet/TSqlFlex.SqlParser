@@ -69,6 +69,7 @@ namespace TSqlFlex.SqlParser
                             if (t.TokenType == SqlToken.TokenTypes.BlockCommentEnd && openToken.TokenType == SqlToken.TokenTypes.BlockCommentStart)
                             {
                                 openTokenCount -= 1;
+                                openToken.IsOpen = false;
                                 openToken = null;
                             }
                         }

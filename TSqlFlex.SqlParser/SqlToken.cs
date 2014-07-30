@@ -93,7 +93,7 @@ namespace TSqlFlex.SqlParser
                     if (isBlockCommentEnd(charsToEvaluate, i))
                     {
                         t = new SqlToken(TokenTypes.BlockCommentBody, oneBasedLineNumber, oneBasedStartCharacterIndex + offset);
-                        t.Text = new String(charsToEvaluate, offset, i);
+                        t.Text = new String(charsToEvaluate, offset, i-offset);
                         tokens.Add(t);
                         t = new SqlToken(TokenTypes.BlockCommentEnd, oneBasedLineNumber, i + 1);
                         t.Text = BLOCK_COMMENT_END;
