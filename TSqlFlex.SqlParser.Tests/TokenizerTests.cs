@@ -106,7 +106,7 @@ namespace TSqlFlex.SqlParser.Tests
             expected[0].Text = "/*";
             expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentBody, 1, 3));
             expected[1].Text = " ";
-            expected.Add(new SqlToken(SqlToken.TokenTypes.Newline, 1, 3));
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Newline, 1, 4));
             expected[2].Text = "\r\n";
             expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentBody, 2, 1));
             expected[3].Text = " test";
