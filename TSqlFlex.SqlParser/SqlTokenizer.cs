@@ -28,7 +28,9 @@ namespace TSqlFlex.SqlParser
             StreamReader sql = new StreamReader(sqlStream, encoding);
 
             int lineNumber = 0;
+            
             SqlToken openToken = null;
+            int openTokenCount = 0;
             do
             {
                 string line = await sql.ReadLineAsync();
@@ -45,7 +47,7 @@ namespace TSqlFlex.SqlParser
                 {
                     List<SqlToken> newTokens = SqlToken.ExtractTokens(line.Substring(charIndex, line.Length - charIndex).ToCharArray(), lineNumber, charIndex + 1, openToken).ToList<SqlToken>();
                     charIndex += LengthOfTokens(newTokens);
-                    int openTokenCount = 0;
+                    
                     foreach(SqlToken t in newTokens)
                     {
                         if (t.IsOpen)
@@ -55,9 +57,21 @@ namespace TSqlFlex.SqlParser
                             openToken = t;
                         }
                     }
+
                     if (openTokenCount == 0)
                     {
                         openToken = null;
+                    }
+                    else
+                    {
+                        foreach (var t in newTokens)
+                        {
+                            if (t.TokenType == SqlToken.TokenTypes.BlockCommentEnd && openToken.TokenType == SqlToken.TokenTypes.BlockCommentStart)
+                            {
+                                openTokenCount -= 1;
+                                openToken = null;
+                            }
+                        }
                     }
                     tokens.AddRange(newTokens);
                 }
