@@ -76,7 +76,43 @@ namespace TSqlFlex.SqlParser.Tests
             AssertArePropertiesEqual(expected, actual);
         }
 
+        [Test()]
+        public async void SimpleStringWithBody_ReturnsTheBody()
+        {
+            var actualTask = SqlTokenizer.TokenizeAsync("'test'");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringStart, 1, 1));
+            expected[0].Text = "'";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringBody, 1, 2));
+            expected[1].Text = "test";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringEnd, 1, 6));
+            expected[2].Text = "'";
 
+            var actual = await actualTask;
+
+            AssertArePropertiesEqual(expected, actual);
+        }
+
+        [Test()]
+        public async void MultilineString_ParsesCorrectly()
+        {
+            var actualTask = SqlTokenizer.TokenizeAsync("'testline1\r\ntestline2'");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringStart, 1, 1));
+            expected[0].Text = "'";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringBody, 1, 2));
+            expected[1].Text = "testline1";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Newline, 1, 11));
+            expected[2].Text = "\r\n";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringBody, 2, 1));
+            expected[3].Text = "testline2";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringEnd, 2, 10));
+            expected[4].Text = "'";
+
+            var actual = await actualTask;
+
+            AssertArePropertiesEqual(expected, actual);
+        }
 
         [Test()]
         public async void WhenPassedWhitespaceThenLineComment_ReturnsCorrectResult()

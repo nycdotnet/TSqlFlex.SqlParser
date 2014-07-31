@@ -12,6 +12,7 @@ namespace TSqlFlex.SqlParser
         public const string BLOCK_COMMENT_START = "/*";
         public const string BLOCK_COMMENT_END = "*/";
         public const string LINE_COMMENT_TOKEN = "--";
+        public const string QUOTE_TOKEN = "'";
 
         public enum TokenTypes
         {
@@ -60,6 +61,10 @@ namespace TSqlFlex.SqlParser
                 {
                     return ExtractBlockCommentTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex, openTokenIfAny);
                 }
+                else if (openTokenIfAny.TokenType == TokenTypes.StringStart)
+                {
+                    return ExtractStringTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex, openTokenIfAny);
+                }
             }
             else if (isWhitespace(charsToEvaluate))
             {
@@ -73,9 +78,9 @@ namespace TSqlFlex.SqlParser
             {
                 return ExtractBlockCommentTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
             }
-            else if (isQuoteStart(charsToEvaluate))
+            else if (isStringStart(charsToEvaluate))
             {
-                return ExtractQuoteTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
+                return ExtractStringTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
             }
             return ExtractUnknownToken(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
         }
@@ -93,6 +98,11 @@ namespace TSqlFlex.SqlParser
         private static bool weAreAlreadyInAnOpenBlockComment(SqlToken openTokenIfAny = null)
         {
             return (openTokenIfAny != null && openTokenIfAny.TokenType == TokenTypes.BlockCommentStart && openTokenIfAny.IsOpen);
+        }
+
+        private static bool weAreAlreadyInAnOpenString(SqlToken openTokenIfAny = null)
+        {
+            return (openTokenIfAny != null && openTokenIfAny.TokenType == TokenTypes.StringStart && openTokenIfAny.IsOpen);
         }
 
         private static IList<SqlToken> ExtractBlockCommentTokens(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex, SqlToken openTokenIfAny = null)
@@ -149,60 +159,77 @@ namespace TSqlFlex.SqlParser
             return tokens;
         }
 
-        private static IList<SqlToken> ExtractQuoteTokens(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex)
+        
+        private static IList<SqlToken> ExtractStringTokens(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex, SqlToken openTokenIfAny = null)
         {
             List<SqlToken> tokens = new List<SqlToken>();
 
             int offset = 0;
             SqlToken t;
 
-            if (isQuoteStart(charsToEvaluate))
+            if (isStringStart(charsToEvaluate) && !weAreAlreadyInAnOpenString(openTokenIfAny))
             {
-                t = new SqlToken(TokenTypes.BlockCommentStart, oneBasedLineNumber, oneBasedStartCharacterIndex);
-                t.Text = BLOCK_COMMENT_START;
-                offset += BLOCK_COMMENT_START.Length;
+                t = new SqlToken(TokenTypes.StringStart, oneBasedLineNumber, oneBasedStartCharacterIndex);
+                t.Text = QUOTE_TOKEN;
+                offset += QUOTE_TOKEN.Length;
                 tokens.Add(t);
             }
 
-            if (charsToEvaluate.Length > offset)
+            if (thereAreStillCharactersRemaining(charsToEvaluate, offset))
             {
-                for (int i = offset; i < charsToEvaluate.Length - 1; i += 1)
+                StringBuilder remainingChars = new StringBuilder(charsToEvaluate.Length - offset);
+                for (int i = offset; i < charsToEvaluate.Length; i += 1)
                 {
-                    if (isBlockCommentEnd(charsToEvaluate, i))
+                    if (isEscapedQuote(charsToEvaluate, i))
                     {
-                        t = new SqlToken(TokenTypes.BlockCommentBody, oneBasedLineNumber, oneBasedStartCharacterIndex + offset);
-                        t.Text = new String(charsToEvaluate, offset, i - offset);
-                        tokens.Add(t);
-                        t = new SqlToken(TokenTypes.BlockCommentEnd, oneBasedLineNumber, i + 1);
-                        t.Text = BLOCK_COMMENT_END;
+                        remainingChars.Append("'");
+                        i += 1;
+                    }
+                    else if (isStringEnd(charsToEvaluate, i)) {
+                        var body = remainingChars.ToString();
+                        if (body.Length > 0) {
+                            t = new SqlToken(TokenTypes.StringBody, oneBasedLineNumber, oneBasedStartCharacterIndex + offset);
+                            t.Text = body;
+                            tokens.Add(t);
+                        }
+                        t = new SqlToken(TokenTypes.StringEnd, oneBasedLineNumber, i + 1);
+                        t.Text = QUOTE_TOKEN;
                         tokens.Add(t);
                         return tokens;
                     }
+                    else
+                    {
+                        remainingChars.Append(charsToEvaluate[i]);
+                    }
                 }
-                //We didn't find a block comment end (*/)
+
+                //We didn't find a string end (*/)
 
                 //hack: fix this.
-                var blockCommentStart = tokens.Where(tok => tok.TokenType == TokenTypes.BlockCommentStart);
-                foreach (var bcs in blockCommentStart)
+                foreach (var s in tokens.Where(tok => tok.TokenType == TokenTypes.StringStart))
                 {
-                    bcs.IsOpen = true;
+                    s.IsOpen = true;
                 }
 
-                t = new SqlToken(TokenTypes.BlockCommentBody, oneBasedLineNumber, oneBasedStartCharacterIndex + offset);
-                t.Text = new String(charsToEvaluate, offset, charsToEvaluate.Length - offset);
+                t = new SqlToken(TokenTypes.StringBody, oneBasedLineNumber, oneBasedStartCharacterIndex + offset);
+                t.Text = remainingChars.ToString();
                 tokens.Add(t);
                 return tokens;
             }
 
             //hack: fix this.
-            var blockCommentStart1 = tokens.Where(tok => tok.TokenType == TokenTypes.BlockCommentStart);
-            foreach (var bcs in blockCommentStart1)
+            foreach (var s in tokens.Where(tok => tok.TokenType == TokenTypes.StringStart))
             {
-                bcs.IsOpen = true;
+                s.IsOpen = true;
             }
+
             return tokens;
         }
 
+        private static bool thereAreStillCharactersRemaining(Char[] charsToEvaluate, int offset)
+        {
+            return charsToEvaluate.Length > offset;
+        }
 
         private static IList<SqlToken> ExtractLineCommentTokens(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex)
         {
@@ -213,7 +240,7 @@ namespace TSqlFlex.SqlParser
             t.Text = LINE_COMMENT_TOKEN;
             tokens.Add(t);
 
-            if (charsToEvaluate.Length > LINE_COMMENT_TOKEN.Length)
+            if (thereAreStillCharactersRemaining(charsToEvaluate, LINE_COMMENT_TOKEN.Length))
             {
                 t = new SqlToken(TokenTypes.LineCommentBody, oneBasedLineNumber, oneBasedStartCharacterIndex + LINE_COMMENT_TOKEN.Length);
                 t.Text = new String(charsToEvaluate, 2, charsToEvaluate.Length - LINE_COMMENT_TOKEN.Length);
@@ -259,10 +286,27 @@ namespace TSqlFlex.SqlParser
         {
             return (theCharArray[firstCharIndex] == '*' && theCharArray[firstCharIndex + 1] == '/');
         }
-        static private bool isQuoteStart(Char[] theCharAray)
+        static private bool isStringStart(Char[] theCharAray)
         {
             return (theCharAray[0] == '\'');
         }
+        static private bool isEscapedQuote(Char[] theCharArray, int firstCharIndex)
+        {
+            if (firstCharIndex + 1 >= theCharArray.Length)
+            {
+                return false;
+            }
+            return (theCharArray[firstCharIndex] == '\'' && theCharArray[firstCharIndex + 1] == '\'') ;
+        }
+        static private bool isStringEnd(Char[] theCharAray, int firstCharIndex)
+        {
+            if (firstCharIndex == theCharAray.Length - 1)
+            {
+                return (theCharAray[firstCharIndex] == '\'');
+            }
+            return (theCharAray[firstCharIndex] == '\'' && theCharAray[firstCharIndex+1] != '\'');
+        }
+
 
 
     }

@@ -71,6 +71,11 @@ namespace TSqlFlex.SqlParser
                                 openTokenCount -= 1;
                                 openToken.IsOpen = false;
                                 openToken = null;
+                            } else if (t.TokenType == SqlToken.TokenTypes.StringEnd && openToken.TokenType == SqlToken.TokenTypes.StringStart)
+                            {
+                                openTokenCount -= 1;
+                                openToken.IsOpen = false;
+                                openToken = null;
                             }
                         }
                     }
