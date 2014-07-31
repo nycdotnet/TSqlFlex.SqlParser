@@ -62,6 +62,23 @@ namespace TSqlFlex.SqlParser.Tests
         }
 
         [Test()]
+        public async void SimpleString_ReturnsNoBody()
+        {
+            var actualTask = SqlTokenizer.TokenizeAsync("''");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringStart, 1, 1));
+            expected[0].Text = "'";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringEnd, 1, 2));
+            expected[1].Text = "'";
+
+            var actual = await actualTask;
+
+            AssertArePropertiesEqual(expected, actual);
+        }
+
+
+
+        [Test()]
         public async void WhenPassedWhitespaceThenLineComment_ReturnsCorrectResult()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("   --This is a comment\n ");
@@ -92,6 +109,24 @@ namespace TSqlFlex.SqlParser.Tests
             expected[1].Text = "test";
             expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentEnd, 1, 7));
             expected[2].Text = "*/";
+            var actual = await actualTask;
+
+            AssertArePropertiesEqual(expected, actual);
+        }
+
+        [Test()]
+        public async void BlockCommentWithInternalBlockCommentStart_ReturnsCorrectResult()
+        {
+            var actualTask = SqlTokenizer.TokenizeAsync("/*\r\n/**/");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentStart, 1, 1));
+            expected[0].Text = "/*";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Newline, 1, 3));
+            expected[1].Text = "\r\n";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentBody, 2, 1));
+            expected[2].Text = "/*";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentEnd, 2, 3));
+            expected[3].Text = "*/";
             var actual = await actualTask;
 
             AssertArePropertiesEqual(expected, actual);

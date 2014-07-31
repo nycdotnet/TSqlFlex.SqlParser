@@ -8,6 +8,11 @@ namespace TSqlFlex.SqlParser
 {
     public class SqlToken
     {
+
+        public const string BLOCK_COMMENT_START = "/*";
+        public const string BLOCK_COMMENT_END = "*/";
+        public const string LINE_COMMENT_TOKEN = "--";
+
         public enum TokenTypes
         {
             Whitespace,
@@ -18,6 +23,9 @@ namespace TSqlFlex.SqlParser
             BlockCommentEnd,
             LineCommentStart,
             LineCommentBody,
+            StringStart,
+            StringBody,
+            StringEnd,
             Unknown
         }
         public TokenTypes TokenType { get; set; }
@@ -36,13 +44,21 @@ namespace TSqlFlex.SqlParser
         /// </summary>
         public bool IsOpen { get; set; }
 
+        public SqlToken(TokenTypes type, int oneBasedLineNumber, int oneBasedStartCharacterIndex)
+        {
+            StartCharacterIndex = oneBasedStartCharacterIndex;
+            LineNumber = oneBasedLineNumber;
+            TokenType = type;
+            IsOpen = false;
+        }
+
         static public IList<SqlToken> ExtractTokens(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex, SqlToken openTokenIfAny)
         {
             if (openTokenIfAny != null)
             {
                 if (openTokenIfAny.TokenType == TokenTypes.BlockCommentStart)
                 {
-                    return ExtractBlockCommentTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
+                    return ExtractBlockCommentTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex, openTokenIfAny);
                 }
             }
             else if (isWhitespace(charsToEvaluate))
@@ -57,6 +73,10 @@ namespace TSqlFlex.SqlParser
             {
                 return ExtractBlockCommentTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
             }
+            else if (isQuoteStart(charsToEvaluate))
+            {
+                return ExtractQuoteTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
+            }
             return ExtractUnknownToken(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
         }
 
@@ -70,16 +90,20 @@ namespace TSqlFlex.SqlParser
             return tokens;
         }
 
-        private static IList<SqlToken> ExtractBlockCommentTokens(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex)
+        private static bool weAreAlreadyInAnOpenBlockComment(SqlToken openTokenIfAny = null)
         {
-            const string BLOCK_COMMENT_START = "/*";
-            const string BLOCK_COMMENT_END = "*/";
+            return (openTokenIfAny != null && openTokenIfAny.TokenType == TokenTypes.BlockCommentStart && openTokenIfAny.IsOpen);
+        }
+
+        private static IList<SqlToken> ExtractBlockCommentTokens(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex, SqlToken openTokenIfAny = null)
+        {
             List<SqlToken> tokens = new List<SqlToken>();
 
             int offset = 0;
             SqlToken t;
 
-            if (isBlockCommentStart(charsToEvaluate)) { 
+            if (isBlockCommentStart(charsToEvaluate) && !weAreAlreadyInAnOpenBlockComment(openTokenIfAny))
+            { 
                 t = new SqlToken(TokenTypes.BlockCommentStart, oneBasedLineNumber, oneBasedStartCharacterIndex);
                 t.Text = BLOCK_COMMENT_START;
                 offset += BLOCK_COMMENT_START.Length;
@@ -125,19 +149,74 @@ namespace TSqlFlex.SqlParser
             return tokens;
         }
 
+        private static IList<SqlToken> ExtractQuoteTokens(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex)
+        {
+            List<SqlToken> tokens = new List<SqlToken>();
+
+            int offset = 0;
+            SqlToken t;
+
+            if (isQuoteStart(charsToEvaluate))
+            {
+                t = new SqlToken(TokenTypes.BlockCommentStart, oneBasedLineNumber, oneBasedStartCharacterIndex);
+                t.Text = BLOCK_COMMENT_START;
+                offset += BLOCK_COMMENT_START.Length;
+                tokens.Add(t);
+            }
+
+            if (charsToEvaluate.Length > offset)
+            {
+                for (int i = offset; i < charsToEvaluate.Length - 1; i += 1)
+                {
+                    if (isBlockCommentEnd(charsToEvaluate, i))
+                    {
+                        t = new SqlToken(TokenTypes.BlockCommentBody, oneBasedLineNumber, oneBasedStartCharacterIndex + offset);
+                        t.Text = new String(charsToEvaluate, offset, i - offset);
+                        tokens.Add(t);
+                        t = new SqlToken(TokenTypes.BlockCommentEnd, oneBasedLineNumber, i + 1);
+                        t.Text = BLOCK_COMMENT_END;
+                        tokens.Add(t);
+                        return tokens;
+                    }
+                }
+                //We didn't find a block comment end (*/)
+
+                //hack: fix this.
+                var blockCommentStart = tokens.Where(tok => tok.TokenType == TokenTypes.BlockCommentStart);
+                foreach (var bcs in blockCommentStart)
+                {
+                    bcs.IsOpen = true;
+                }
+
+                t = new SqlToken(TokenTypes.BlockCommentBody, oneBasedLineNumber, oneBasedStartCharacterIndex + offset);
+                t.Text = new String(charsToEvaluate, offset, charsToEvaluate.Length - offset);
+                tokens.Add(t);
+                return tokens;
+            }
+
+            //hack: fix this.
+            var blockCommentStart1 = tokens.Where(tok => tok.TokenType == TokenTypes.BlockCommentStart);
+            foreach (var bcs in blockCommentStart1)
+            {
+                bcs.IsOpen = true;
+            }
+            return tokens;
+        }
+
+
         private static IList<SqlToken> ExtractLineCommentTokens(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex)
         {
             List<SqlToken> tokens = new List<SqlToken>();
             SqlToken t;
-            const int LINE_COMMENT_TOKEN_LENGTH = 2;
+            
             t = new SqlToken(TokenTypes.LineCommentStart, oneBasedLineNumber, oneBasedStartCharacterIndex);
-            t.Text = "--";
+            t.Text = LINE_COMMENT_TOKEN;
             tokens.Add(t);
 
-            if (charsToEvaluate.Length > LINE_COMMENT_TOKEN_LENGTH)
+            if (charsToEvaluate.Length > LINE_COMMENT_TOKEN.Length)
             {
-                t = new SqlToken(TokenTypes.LineCommentBody, oneBasedLineNumber, oneBasedStartCharacterIndex + LINE_COMMENT_TOKEN_LENGTH);
-                t.Text = new String(charsToEvaluate, 2, charsToEvaluate.Length - LINE_COMMENT_TOKEN_LENGTH);
+                t = new SqlToken(TokenTypes.LineCommentBody, oneBasedLineNumber, oneBasedStartCharacterIndex + LINE_COMMENT_TOKEN.Length);
+                t.Text = new String(charsToEvaluate, 2, charsToEvaluate.Length - LINE_COMMENT_TOKEN.Length);
                 tokens.Add(t);
             }
             return tokens;
@@ -180,14 +259,11 @@ namespace TSqlFlex.SqlParser
         {
             return (theCharArray[firstCharIndex] == '*' && theCharArray[firstCharIndex + 1] == '/');
         }
-
-
-        public SqlToken(TokenTypes type, int oneBasedLineNumber, int oneBasedStartCharacterIndex)
+        static private bool isQuoteStart(Char[] theCharAray)
         {
-            StartCharacterIndex = oneBasedStartCharacterIndex;
-            LineNumber = oneBasedLineNumber;
-            TokenType = type;
-            IsOpen = false;
+            return (theCharAray[0] == '\'');
         }
+
+
     }
 }
