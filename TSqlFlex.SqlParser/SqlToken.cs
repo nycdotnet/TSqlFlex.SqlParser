@@ -38,7 +38,13 @@ namespace TSqlFlex.SqlParser
         /// One-based character start index (starting from left)
         /// </summary>
         public int StartCharacterIndex { get; set; }
-        public int Length { get { return Text.Length;  } }
+        public int Length { get {
+            if (TokenType == TokenTypes.StringBody)
+            {
+                return (Text.Replace("'","''")).Length;
+            }
+            return Text.Length;
+        } }
         public string Text { get; set; }
         /// <summary>
         /// Indicates if the block comment start token or string start token isn't known to be closed such as /* or '

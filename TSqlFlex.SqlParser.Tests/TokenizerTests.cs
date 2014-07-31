@@ -94,6 +94,25 @@ namespace TSqlFlex.SqlParser.Tests
         }
 
         [Test()]
+        public async void StringStartingWithEscapedQuote_ReturnsCorrectly()
+        {
+            var actualTask = SqlTokenizer.TokenizeAsync("''' '");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringStart, 1, 1));
+            expected[0].Text = "'";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringBody, 1, 2));
+            expected[1].Text = "' ";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringEnd, 1, 5));
+            expected[2].Text = "'";
+
+            var actual = await actualTask;
+
+            AssertArePropertiesEqual(expected, actual);
+        }
+
+
+
+        [Test()]
         public async void MultilineString_ParsesCorrectly()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("'testline1\r\ntestline2'");
