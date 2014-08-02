@@ -16,8 +16,8 @@ namespace TSqlFlex.SqlParser
 
         public enum TokenTypes
         {
+            Unknown,
             Whitespace,
-            Keyword,
             Newline,
             BlockCommentStart,
             BlockCommentBody,
@@ -27,7 +27,12 @@ namespace TSqlFlex.SqlParser
             StringStart,
             StringBody,
             StringEnd,
-            Unknown
+            Star,
+            Select,
+            Insert,
+            Update,
+            Delete,
+            From
         }
         public TokenTypes TokenType { get; set; }
         /// <summary>
@@ -51,6 +56,8 @@ namespace TSqlFlex.SqlParser
         /// </summary>
         public bool IsOpen { get; set; }
 
+        
+        
         public SqlToken(TokenTypes type, int oneBasedLineNumber, int oneBasedStartCharacterIndex)
         {
             StartCharacterIndex = oneBasedStartCharacterIndex;
@@ -88,7 +95,24 @@ namespace TSqlFlex.SqlParser
             {
                 return ExtractStringTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
             }
+            else
+            {
+                string keyword = SqlKeyWords.GetSqlKeyWord(charsToEvaluate);
+                if (keyword != "")
+                {
+                    return ExtractKeywordToken(oneBasedLineNumber, oneBasedStartCharacterIndex, keyword);
+                }
+            }
             return ExtractUnknownToken(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
+        }
+
+        private static IList<SqlToken> ExtractKeywordToken(int oneBasedLineNumber, int oneBasedStartCharacterIndex, string keyword)
+        {
+            List<SqlToken> tokens = new List<SqlToken>();
+            var t = new SqlToken(SqlKeyWords.TokenTypeFromKeyWord(keyword), oneBasedLineNumber, oneBasedStartCharacterIndex);
+            t.Text = keyword;
+            tokens.Add(t);
+            return tokens;
         }
 
         private static IList<SqlToken> ExtractUnknownToken(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex)
@@ -341,7 +365,6 @@ namespace TSqlFlex.SqlParser
             }
             return (theCharAray[firstCharIndex] == '\'' && theCharAray[firstCharIndex+1] != '\'');
         }
-
 
 
     }

@@ -11,7 +11,7 @@ using TSqlFlex.SqlParser;
 namespace TSqlFlex.SqlParser.Tests
 {
     [TestFixture()]
-    class TokenizerTests
+    class TokenizerGeneralSyntaxTests
     {
         [Test()]
         public async void WhenPassedEmptyString_ReturnsEmptyArray()
@@ -256,5 +256,31 @@ namespace TSqlFlex.SqlParser.Tests
             var actualJson = serializer.Serialize(actual);
             Assert.AreEqual(expectedJson, actualJson, "expected: " + expectedJson + "\r\n" + "  actual:   " + actualJson);
         }
+    }
+
+    class TokenizerSqlStatementTests
+    {
+        [Test()]
+        public async void BasicSelectStarQuery_ReturnsEmptyArray()
+        {
+            var actualTask = SqlTokenizer.TokenizeAsync("SELECT * FROM MyTable");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Select, 1, 1));
+            expected[0].Text = "SELECT";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 7));
+            expected[1].Text = " ";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Star, 1, 8));
+            expected[2].Text = "*";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 9));
+            expected[3].Text = " ";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.From, 1, 10));
+            expected[4].Text = "FROM";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 14));
+            expected[5].Text = " ";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Unknown, 1, 15));
+            expected[6].Text = "MyTable";
+            var actual = await actualTask;
+
+            TokenizerGeneralSyntaxTests.AssertArePropertiesEqual(expected, actual);        }
     }
 }

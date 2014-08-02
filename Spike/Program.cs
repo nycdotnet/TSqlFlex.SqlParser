@@ -16,14 +16,22 @@ namespace Spike
 
         static async void DoStuff()
         {
-            var actualTask = SqlTokenizer.TokenizeAsync("''' '");
+            var actualTask = SqlTokenizer.TokenizeAsync("SELECT * FROM MyTable");
             var expected = new List<SqlToken>();
-            expected.Add(new SqlToken(SqlToken.TokenTypes.StringStart, 1, 1));
-            expected[0].Text = "'";
-            expected.Add(new SqlToken(SqlToken.TokenTypes.StringBody, 1, 2));
-            expected[1].Text = "' ";
-            expected.Add(new SqlToken(SqlToken.TokenTypes.StringEnd, 1, 5));
-            expected[2].Text = "'";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Select, 1, 1));
+            expected[0].Text = "SELECT";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 7));
+            expected[1].Text = " ";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Star, 1, 8));
+            expected[2].Text = "*";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 9));
+            expected[3].Text = " ";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Select, 1, 10));
+            expected[4].Text = "FROM";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 14));
+            expected[5].Text = " ";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Unknown, 1, 15));
+            expected[6].Text = "MyTable";
 
             var actual = await actualTask;
             //Assert.AreEqual(expected, actual);

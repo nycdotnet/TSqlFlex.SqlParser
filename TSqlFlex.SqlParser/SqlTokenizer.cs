@@ -10,6 +10,11 @@ namespace TSqlFlex.SqlParser
 {
     public class SqlTokenizer
     {
+        /// <summary>
+        /// Tokenizes the SQL statements in the stream
+        /// </summary>
+        /// <param name="sql">SQL statements to parse.</param>
+        /// <returns>The IList of tokens in the SQL stream</returns>
         static public async Task<IList<SqlToken>> TokenizeAsync(string sql)
         {
             using (var ms = new MemoryStream())
@@ -22,8 +27,18 @@ namespace TSqlFlex.SqlParser
             }
         }
 
-        static public async Task<IList<SqlToken>> TokenizeAsync(Stream sqlStream, Encoding encoding)
+        /// <summary>
+        /// Tokenizes the SQL statements in the stream
+        /// </summary>
+        /// <param name="sqlStream">A stream of the SQL statements to parse.</param>
+        /// <param name="encoding">System.Text.Encoding of the stream.  If not specified, defaults to UTF8.</param>
+        /// <returns>The IList of tokens in the SQL stream</returns>
+        static public async Task<IList<SqlToken>> TokenizeAsync(Stream sqlStream, Encoding encoding = null)
         {
+            if (encoding == null)
+            {
+                encoding = Encoding.UTF8; //best guess
+            }
             List<SqlToken> tokens = new List<SqlToken>();
             StreamReader sql = new StreamReader(sqlStream, encoding);
 
