@@ -94,11 +94,33 @@ namespace TSqlFlex.SqlParser
         private static IList<SqlToken> ExtractUnknownToken(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex)
         {
             List<SqlToken> tokens = new List<SqlToken>();
-            
+
+            int unknownTokenEndIndex = -1;
+
+            for (int charIndex = 0; charIndex < charsToEvaluate.Length; charIndex+=1)
+            {
+                if (isWhitespace(charsToEvaluate[charIndex]) ||
+                    isLineCommentStart(charsToEvaluate, charIndex) ||
+                    isBlockCommentStart(charsToEvaluate, charIndex) ||
+                    isStringStart(charsToEvaluate,charIndex)) {
+                        unknownTokenEndIndex = charIndex - 1;
+                        break;
+                }
+            }
+
             var t = new SqlToken(TokenTypes.Unknown, oneBasedLineNumber, oneBasedStartCharacterIndex);
-            t.Text = new String(charsToEvaluate);
+                
+            if (unknownTokenEndIndex == -1)
+            {
+                t.Text = new String(charsToEvaluate);
+            }
+            else
+            {
+                t.Text = new String(charsToEvaluate, 0, unknownTokenEndIndex + 1);
+            }
             tokens.Add(t);
             return tokens;
+
         }
 
         private static bool weAreAlreadyInAnOpenBlockComment(SqlToken openTokenIfAny = null)
@@ -165,7 +187,6 @@ namespace TSqlFlex.SqlParser
             return tokens;
         }
 
-        
         private static IList<SqlToken> ExtractStringTokens(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex, SqlToken openTokenIfAny = null)
         {
             List<SqlToken> tokens = new List<SqlToken>();
@@ -280,21 +301,29 @@ namespace TSqlFlex.SqlParser
         {
             return isWhitespace(theCharArray[0]);
         }
-        static private bool isLineCommentStart(Char[] theCharArray)
+        static private bool isLineCommentStart(Char[] theCharArray, int zeroBasedStartCharacterIndex = 0)
         {
+            if (theCharArray.Length < zeroBasedStartCharacterIndex + 1)
+            {
+                return false;
+            }
             return (theCharArray[0] == '-' && theCharArray[1] == '-');
         }
-        static private bool isBlockCommentStart(Char[] theCharArray)
+        static private bool isBlockCommentStart(Char[] theCharArray, int zeroBasedStartCharacterIndex = 0)
         {
+            if (theCharArray.Length < zeroBasedStartCharacterIndex + 1)
+            {
+                return false;
+            }
             return (theCharArray[0] == '/' && theCharArray[1] == '*');
         }
         static private bool isBlockCommentEnd(Char[] theCharArray, int firstCharIndex)
         {
             return (theCharArray[firstCharIndex] == '*' && theCharArray[firstCharIndex + 1] == '/');
         }
-        static private bool isStringStart(Char[] theCharAray)
+        static private bool isStringStart(Char[] theCharAray, int firstCharIndex = 0)
         {
-            return (theCharAray[0] == '\'');
+            return (theCharAray[firstCharIndex] == '\'');
         }
         static private bool isEscapedQuote(Char[] theCharArray, int firstCharIndex)
         {

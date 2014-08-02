@@ -110,6 +110,22 @@ namespace TSqlFlex.SqlParser.Tests
             AssertArePropertiesEqual(expected, actual);
         }
 
+        [Test()]
+        public async void StringEndingWithEscapedQuote_ReturnsCorrectly()
+        {
+            var actualTask = SqlTokenizer.TokenizeAsync("' '''");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringStart, 1, 1));
+            expected[0].Text = "'";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringBody, 1, 2));
+            expected[1].Text = " '";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringEnd, 1, 5));
+            expected[2].Text = "'";
+
+            var actual = await actualTask;
+
+            AssertArePropertiesEqual(expected, actual);
+        }
 
 
         [Test()]
@@ -208,6 +224,24 @@ namespace TSqlFlex.SqlParser.Tests
             expected[6].Text = "*/";
             expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 3, 4));
             expected[7].Text = " ";
+            var actual = await actualTask;
+
+            AssertArePropertiesEqual(expected, actual);
+        }
+
+        [Test()]
+        public async void JunkFollowedByWhitespaceAndLineComment_ReturnsCorrectResult()
+        {
+            var actualTask = SqlTokenizer.TokenizeAsync("lijdfisuyndfk --this is junk");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Unknown, 1, 1));
+            expected[0].Text = "lijdfisuyndfk";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 14));
+            expected[1].Text = " ";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.LineCommentStart, 1, 15));
+            expected[2].Text = "--";
+            expected.Add(new SqlToken(SqlToken.TokenTypes.LineCommentBody, 1, 17));
+            expected[3].Text = "this is junk";
             var actual = await actualTask;
 
             AssertArePropertiesEqual(expected, actual);
