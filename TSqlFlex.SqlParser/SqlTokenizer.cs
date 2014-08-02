@@ -102,8 +102,6 @@ namespace TSqlFlex.SqlParser
                     newLineToken.Text = "\r\n";
                     tokens.Add(newLineToken);
                 }
-
-                Debug.Print(lineNumber.ToString() + ": " + line);
             } while (!sql.EndOfStream);
 
             return tokens;
