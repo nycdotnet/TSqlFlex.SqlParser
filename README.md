@@ -5,7 +5,7 @@ This is a simple T-SQL parser written in C#.
 
 As of right now, only the tokenizer is working, but only for the most elementary of statements.
 
-Currently, the best way to see how it works is to use the tests.
+Currently, the best way to see how it works is to examine the [tests](https://github.com/nycdotnet/TSqlFlex.SqlParser/blob/master/TSqlFlex.SqlParser.Tests/TokenizerTests.cs "Tokenizer Tests").
 
 **example:**
 
