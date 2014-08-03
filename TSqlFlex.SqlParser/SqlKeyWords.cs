@@ -19,13 +19,47 @@ namespace TSqlFlex.SqlParser
         static private void InitializeSqlTokens()
         {
             SqlKeywords = new SortedSet<string>();
-            SqlKeywords.Add("SELECT");
-            SqlKeywords.Add("INSERT");
-            SqlKeywords.Add("UPDATE");
-            SqlKeywords.Add("DELETE");
-            SqlKeywords.Add("FROM");
             SqlKeywords.Add("*");
-
+            SqlKeywords.Add("ACTION");
+            SqlKeywords.Add("ALTER");
+            SqlKeywords.Add("AS");
+            SqlKeywords.Add("ASC");
+            SqlKeywords.Add("BY");
+            SqlKeywords.Add("CLUSTERED");
+            SqlKeywords.Add("COLUMN");
+            SqlKeywords.Add("CONSTRAINT");
+            SqlKeywords.Add("CREATE");
+            SqlKeywords.Add("DEFAULT");
+            SqlKeywords.Add("DELETE");
+            SqlKeywords.Add("DESC");
+            SqlKeywords.Add("DROP");
+            SqlKeywords.Add("EXEC");
+            SqlKeywords.Add("EXECUTE");
+            SqlKeywords.Add("FROM");
+            SqlKeywords.Add("FUNCTION");
+            SqlKeywords.Add("GROUP");
+            SqlKeywords.Add("INSERT");
+            SqlKeywords.Add("INDEX");
+            SqlKeywords.Add("KEY");
+            SqlKeywords.Add("LEVEL");
+            SqlKeywords.Add("NONCLUSTERED");
+            SqlKeywords.Add("OCT");
+            SqlKeywords.Add("ORDER");
+            SqlKeywords.Add("PRIMARY");
+            SqlKeywords.Add("PROC");
+            SqlKeywords.Add("PROCEDURE");
+            SqlKeywords.Add("RULE");
+            SqlKeywords.Add("SCHEMA");
+            SqlKeywords.Add("SELECT");
+            SqlKeywords.Add("STATISTICS");
+            SqlKeywords.Add("STATUS");
+            SqlKeywords.Add("TABLE");
+            SqlKeywords.Add("TRIGGER");
+            SqlKeywords.Add("UPDATE");
+            SqlKeywords.Add("USER");
+            SqlKeywords.Add("VIEW");
+            SqlKeywords.Add("WHERE");
+            
             MaxKeywordLength = SqlKeywords.Max(s => s.Length);
         }
 
@@ -66,8 +100,6 @@ namespace TSqlFlex.SqlParser
             }
             return "";
         }
-
-
 
     }
 }
