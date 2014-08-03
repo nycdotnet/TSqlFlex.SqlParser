@@ -28,11 +28,7 @@ namespace TSqlFlex.SqlParser
             StringBody,
             StringEnd,
             Star,
-            Select,
-            Insert,
-            Update,
-            Delete,
-            From
+            Keyword
         }
         public TokenTypes TokenType { get; set; }
         /// <summary>
@@ -109,7 +105,7 @@ namespace TSqlFlex.SqlParser
         private static IList<SqlToken> ExtractKeywordToken(int oneBasedLineNumber, int oneBasedStartCharacterIndex, string keyword)
         {
             List<SqlToken> tokens = new List<SqlToken>();
-            var t = new SqlToken(SqlKeyWords.TokenTypeFromKeyWord(keyword), oneBasedLineNumber, oneBasedStartCharacterIndex);
+            var t = new SqlToken(TokenTypes.Keyword, oneBasedLineNumber, oneBasedStartCharacterIndex);
             t.Text = keyword;
             tokens.Add(t);
             return tokens;

@@ -8,7 +8,7 @@ namespace TSqlFlex.SqlParser
 {
     static public class SqlKeyWords
     {
-        static private Dictionary<string, SqlToken.TokenTypes> SqlKeywords;
+        static private SortedSet<string> SqlKeywords;
         static private int MaxKeywordLength;
 
         static SqlKeyWords()
@@ -18,21 +18,17 @@ namespace TSqlFlex.SqlParser
 
         static private void InitializeSqlTokens()
         {
-            SqlKeywords = new Dictionary<string, SqlToken.TokenTypes>();
-            SqlKeywords.Add("SELECT", SqlToken.TokenTypes.Select);
-            SqlKeywords.Add("INSERT", SqlToken.TokenTypes.Insert);
-            SqlKeywords.Add("UPDATE", SqlToken.TokenTypes.Update);
-            SqlKeywords.Add("DELETE", SqlToken.TokenTypes.Delete);
-            SqlKeywords.Add("FROM", SqlToken.TokenTypes.From);
-            SqlKeywords.Add("*", SqlToken.TokenTypes.Star);
+            SqlKeywords = new SortedSet<string>();
+            SqlKeywords.Add("SELECT");
+            SqlKeywords.Add("INSERT");
+            SqlKeywords.Add("UPDATE");
+            SqlKeywords.Add("DELETE");
+            SqlKeywords.Add("FROM");
+            SqlKeywords.Add("*");
 
-            MaxKeywordLength = SqlKeywords.Keys.Max(s => s.Length);
+            MaxKeywordLength = SqlKeywords.Max(s => s.Length);
         }
 
-        static public SqlToken.TokenTypes TokenTypeFromKeyWord(string keyWord)
-        {
-            return SqlKeywords[keyWord];
-        }
         //hack: This is probably an extraordinary candidate for optimization.
         static public string GetSqlKeyWord(Char[] theCharAray, int firstCharIndex = 0)
         {
@@ -44,7 +40,7 @@ namespace TSqlFlex.SqlParser
                 var testChar = char.ToUpper(theCharAray[charIndex]);
                 if (possibleKeyWords == null)
                 {
-                    possibleKeyWords = SqlKeywords.Keys.Where(k => k[charIndex] == theCharAray[charIndex]).ToList<string>();
+                    possibleKeyWords = SqlKeywords.Where(k => k[charIndex] == theCharAray[charIndex]).ToList<string>();
                 }
                 else
                 {
