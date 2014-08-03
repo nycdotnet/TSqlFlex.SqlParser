@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace TSqlFlex.SqlParser
 {
@@ -28,7 +27,9 @@ namespace TSqlFlex.SqlParser
             StringBody,
             StringEnd,
             Star,
-            Keyword
+            Keyword,
+            OpenParenthesis,
+            CloseParenthesis
         }
         public TokenTypes TokenType { get; set; }
         /// <summary>
@@ -90,6 +91,10 @@ namespace TSqlFlex.SqlParser
             else if (isStringStart(charsToEvaluate))
             {
                 return ExtractStringTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
+            }
+            else if (isParenthesis(charsToEvaluate))
+            {
+                return ExtractParenthesisToken(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
             }
             else
             {
@@ -314,6 +319,30 @@ namespace TSqlFlex.SqlParser
             return tokens;
         }
 
+        private static IList<SqlToken> ExtractParenthesisToken(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex)
+        {
+            TokenTypes tt;
+            if (charsToEvaluate[0] == '(')
+            {
+                tt = TokenTypes.OpenParenthesis;
+            }
+            else if (charsToEvaluate[0] == ')')
+            {
+                tt = TokenTypes.CloseParenthesis;
+            }
+            else
+            {
+                throw new ArgumentException("Called Extract Parenthesis Tokens without passing ( or ).");
+            }
+
+            List<SqlToken> tokens = new List<SqlToken>();
+            SqlToken t = new SqlToken(tt, oneBasedLineNumber, oneBasedStartCharacterIndex);;
+            t.Text = new String(charsToEvaluate,0,1);
+            tokens.Add(t);
+
+            return tokens;
+        }
+
         static private bool isWhitespace(Char theChar) {
             return (theChar == ' ' || theChar == '\t');
         }
@@ -340,6 +369,10 @@ namespace TSqlFlex.SqlParser
         static private bool isBlockCommentEnd(Char[] theCharArray, int firstCharIndex)
         {
             return (theCharArray[firstCharIndex] == '*' && theCharArray[firstCharIndex + 1] == '/');
+        }
+        static private bool isParenthesis(Char[] theCharArray, int firstCharIndex = 0)
+        {
+            return (theCharArray[firstCharIndex] == '(' || theCharArray[firstCharIndex] == ')');
         }
         static private bool isStringStart(Char[] theCharAray, int firstCharIndex = 0)
         {
