@@ -29,7 +29,10 @@ namespace TSqlFlex.SqlParser
             Star,
             Keyword,
             OpenParenthesis,
-            CloseParenthesis
+            CloseParenthesis,
+            Comma,
+            Semicolon,
+            Period
         }
         public TokenTypes TokenType { get; set; }
         /// <summary>
@@ -92,9 +95,9 @@ namespace TSqlFlex.SqlParser
             {
                 return ExtractStringTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
             }
-            else if (isParenthesis(charsToEvaluate))
+            else if (isPunctuation(charsToEvaluate))
             {
-                return ExtractParenthesisToken(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
+                return ExtractPunctuationToken(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
             }
             else
             {
@@ -127,7 +130,8 @@ namespace TSqlFlex.SqlParser
                 if (isWhitespace(charsToEvaluate[charIndex]) ||
                     isLineCommentStart(charsToEvaluate, charIndex) ||
                     isBlockCommentStart(charsToEvaluate, charIndex) ||
-                    isStringStart(charsToEvaluate,charIndex)) {
+                    isStringStart(charsToEvaluate,charIndex) ||
+                    isPunctuation(charsToEvaluate,charIndex)) {
                         unknownTokenEndIndex = charIndex - 1;
                         break;
                 }
@@ -319,24 +323,15 @@ namespace TSqlFlex.SqlParser
             return tokens;
         }
 
-        private static IList<SqlToken> ExtractParenthesisToken(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex)
+        private static IList<SqlToken> ExtractPunctuationToken(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex)
         {
-            TokenTypes tt;
-            if (charsToEvaluate[0] == '(')
-            {
-                tt = TokenTypes.OpenParenthesis;
-            }
-            else if (charsToEvaluate[0] == ')')
-            {
-                tt = TokenTypes.CloseParenthesis;
-            }
-            else
-            {
-                throw new ArgumentException("Called Extract Parenthesis Tokens without passing ( or ).");
+            TokenTypes? tt = punctuationTokenType(charsToEvaluate[0]);
+            if (!tt.HasValue) {
+                throw new ArgumentException("Called Extract Punctuation Token without passing punctuation.");
             }
 
             List<SqlToken> tokens = new List<SqlToken>();
-            SqlToken t = new SqlToken(tt, oneBasedLineNumber, oneBasedStartCharacterIndex);;
+            SqlToken t = new SqlToken(tt.Value, oneBasedLineNumber, oneBasedStartCharacterIndex);
             t.Text = new String(charsToEvaluate,0,1);
             tokens.Add(t);
 
@@ -370,9 +365,18 @@ namespace TSqlFlex.SqlParser
         {
             return (theCharArray[firstCharIndex] == '*' && theCharArray[firstCharIndex + 1] == '/');
         }
-        static private bool isParenthesis(Char[] theCharArray, int firstCharIndex = 0)
+        static private TokenTypes? punctuationTokenType(Char character)
         {
-            return (theCharArray[firstCharIndex] == '(' || theCharArray[firstCharIndex] == ')');
+            if (character == ',') { return TokenTypes.Comma; }
+            if (character == '.') { return TokenTypes.Period; } //bug: will tokenize decimal numbers and floats...
+            if (character == '(') { return TokenTypes.OpenParenthesis; }
+            if (character == ')') { return TokenTypes.CloseParenthesis; }
+            if (character == ';') { return TokenTypes.Semicolon; }
+            return null;
+        }
+        static private bool isPunctuation(Char[] theCharArray, int firstCharIndex = 0)
+        {
+            return (punctuationTokenType(theCharArray[firstCharIndex]) != null);
         }
         static private bool isStringStart(Char[] theCharAray, int firstCharIndex = 0)
         {

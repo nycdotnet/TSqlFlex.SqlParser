@@ -281,6 +281,66 @@ namespace TSqlFlex.SqlParser.Tests
             expected[6].Text = "MyTable";
             var actual = await actualTask;
 
-            TokenizerGeneralSyntaxTests.AssertArePropertiesEqual(expected, actual);        }
+            TokenizerGeneralSyntaxTests.AssertArePropertiesEqual(expected, actual);
+        }
+
+        [Test()]
+        public async void BasicInsertQuery_ReturnsSameTokensPlusUnknownForTableName()
+        {
+            int tokenIndex = 0;
+            var actualTask = SqlTokenizer.TokenizeAsync("INSERT INTO MyTable (Field1, Field2) VALUES ('X', 123);");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Keyword, 1, 1));
+            expected[tokenIndex].Text = "INSERT"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 7));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Keyword, 1, 8));
+            expected[tokenIndex].Text = "INTO"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 12));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Unknown, 1, 13));
+            expected[tokenIndex].Text = "MyTable"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 20));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.OpenParenthesis, 1, 21));
+            expected[tokenIndex].Text = "("; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Unknown, 1, 22));
+            expected[tokenIndex].Text = "Field1"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Comma, 1, 28));
+            expected[tokenIndex].Text = ","; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 29));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Unknown, 1, 30));
+            expected[tokenIndex].Text = "Field2"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.CloseParenthesis, 1, 36));
+            expected[tokenIndex].Text = ")"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 37));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Keyword, 1, 38));
+            expected[tokenIndex].Text = "VALUES"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 44));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.OpenParenthesis, 1, 45));
+            expected[tokenIndex].Text = "("; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringStart, 1, 46));
+            expected[tokenIndex].Text = "'"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringBody, 1, 47));
+            expected[tokenIndex].Text = "X"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.StringEnd, 1, 48));
+            expected[tokenIndex].Text = "'"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Comma, 1, 49));
+            expected[tokenIndex].Text = ","; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 50));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Unknown, 1, 51));
+            expected[tokenIndex].Text = "123"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.CloseParenthesis, 1, 54));
+            expected[tokenIndex].Text = ")"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Semicolon, 1, 55));
+            expected[tokenIndex].Text = ";"; tokenIndex += 1;
+            var actual = await actualTask;
+
+            TokenizerGeneralSyntaxTests.AssertArePropertiesEqual(expected, actual);
+        }
     }
 }

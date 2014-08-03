@@ -39,6 +39,7 @@ namespace TSqlFlex.SqlParser
             SqlKeywords.Add("FUNCTION");
             SqlKeywords.Add("GROUP");
             SqlKeywords.Add("INSERT");
+            SqlKeywords.Add("INTO");
             SqlKeywords.Add("INDEX");
             SqlKeywords.Add("KEY");
             SqlKeywords.Add("LEVEL");
@@ -57,6 +58,7 @@ namespace TSqlFlex.SqlParser
             SqlKeywords.Add("TRIGGER");
             SqlKeywords.Add("UPDATE");
             SqlKeywords.Add("USER");
+            SqlKeywords.Add("VALUES");
             SqlKeywords.Add("VIEW");
             SqlKeywords.Add("WHERE");
             
