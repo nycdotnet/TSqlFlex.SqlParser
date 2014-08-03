@@ -261,7 +261,7 @@ namespace TSqlFlex.SqlParser.Tests
     class TokenizerSqlStatementTests
     {
         [Test()]
-        public async void BasicSelectStarQuery_ReturnsEmptyArray()
+        public async void BasicSelectStarQuery_ReturnsSameTokensPlusUnknownForTableName()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("SELECT * FROM MyTable");
             var expected = new List<SqlToken>();
