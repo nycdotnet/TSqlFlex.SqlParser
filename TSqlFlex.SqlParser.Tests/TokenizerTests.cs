@@ -247,6 +247,18 @@ namespace TSqlFlex.SqlParser.Tests
             AssertArePropertiesEqual(expected, actual);
         }
 
+        [Test()]
+        public void RegularBracketizedTokens_ReturnCorrectlyResult()
+        {
+            Assert.Fail("Not implemented.");
+        }
+
+        [Test()]
+        public void EscapedBracketizedTokens_ReturnCorrectlyResult()
+        {
+            Assert.Fail("Not implemented.");
+        }
+
 
         //Thanks: http://stackoverflow.com/questions/318210/compare-equality-between-two-objects-in-nunit/
         public static void AssertArePropertiesEqual(object expected, object actual)

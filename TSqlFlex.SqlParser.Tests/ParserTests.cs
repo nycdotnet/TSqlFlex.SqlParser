@@ -29,5 +29,6 @@ namespace TSqlFlex.SqlParser.Tests
             Assert.AreEqual(21, b.BatchText().Length, "expected this specific length because that's what is in the file.");
         }
 
+        //todo: this is valid SQL: SELECT 1as[Z],'B'as[R[[z]
     }
 }
