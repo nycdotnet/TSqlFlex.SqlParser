@@ -248,7 +248,7 @@ namespace TSqlFlex.SqlParser
                             t.Text = body;
                             tokens.Add(t);
                         }
-                        t = new SqlToken(TokenTypes.StringEnd, oneBasedLineNumber, i + 1);
+                        t = new SqlToken(TokenTypes.StringEnd, oneBasedLineNumber, oneBasedStartCharacterIndex + i);
                         t.Text = QUOTE_TOKEN;
                         tokens.Add(t);
                         return tokens;
