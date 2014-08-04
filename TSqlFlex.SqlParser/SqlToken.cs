@@ -32,7 +32,10 @@ namespace TSqlFlex.SqlParser
             CloseParenthesis,
             Comma,
             Semicolon,
-            Period
+            Period,
+            OpenBracket,
+            BracketBody,
+            CloseBracket
         }
         public TokenTypes TokenType { get; set; }
         /// <summary>
@@ -47,6 +50,10 @@ namespace TSqlFlex.SqlParser
             if (TokenType == TokenTypes.StringBody)
             {
                 return (Text.Replace("'","''")).Length;
+            }
+            else if (TokenType == TokenTypes.BracketBody)
+            {
+                return (Text.Replace("]", "]]")).Length;
             }
             return Text.Length;
         } }
@@ -78,6 +85,12 @@ namespace TSqlFlex.SqlParser
                 {
                     return ExtractStringTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex, openTokenIfAny);
                 }
+                else if (openTokenIfAny.TokenType == TokenTypes.OpenBracket)
+                {
+                    return ExtractBracketizedTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
+                }
+                throw new InvalidOperationException("Unexpected open token type.");
+                
             }
             else if (isWhitespace(charsToEvaluate))
             {
@@ -94,6 +107,10 @@ namespace TSqlFlex.SqlParser
             else if (isStringStart(charsToEvaluate))
             {
                 return ExtractStringTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
+            }
+            else if (isOpenBracket(charsToEvaluate))
+            {
+                return ExtractBracketizedTokens(charsToEvaluate, oneBasedLineNumber, oneBasedStartCharacterIndex);
             }
             else if (isPunctuation(charsToEvaluate))
             {
@@ -157,6 +174,11 @@ namespace TSqlFlex.SqlParser
             return (openTokenIfAny != null && openTokenIfAny.TokenType == TokenTypes.BlockCommentStart && openTokenIfAny.IsOpen);
         }
 
+        private static bool weAreAlreadyInAnOpenBracket(SqlToken openTokenIfAny = null)
+        {
+            return (openTokenIfAny != null && openTokenIfAny.TokenType == TokenTypes.OpenBracket && openTokenIfAny.IsOpen);
+        }
+
         private static bool weAreAlreadyInAnOpenString(SqlToken openTokenIfAny = null)
         {
             return (openTokenIfAny != null && openTokenIfAny.TokenType == TokenTypes.StringStart && openTokenIfAny.IsOpen);
@@ -215,6 +237,68 @@ namespace TSqlFlex.SqlParser
             }
             return tokens;
         }
+
+        private static IList<SqlToken> ExtractBracketizedTokens(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex, SqlToken openTokenIfAny = null)
+        {
+            List<SqlToken> tokens = new List<SqlToken>();
+
+            int offset = 0;
+            SqlToken t;
+
+            if (isOpenBracket(charsToEvaluate) && !weAreAlreadyInAnOpenBracket(openTokenIfAny))
+            {
+                t = new SqlToken(TokenTypes.OpenBracket, oneBasedLineNumber, oneBasedStartCharacterIndex);
+                t.Text = "[";
+                offset += "[".Length;
+                tokens.Add(t);
+            }
+
+            if (thereAreStillCharactersRemaining(charsToEvaluate, offset))
+            {
+                StringBuilder remainingChars = new StringBuilder(charsToEvaluate.Length - offset);
+                for (int i = offset; i < charsToEvaluate.Length; i += 1)
+                {
+                    if (isEscapedCloseBracket(charsToEvaluate, i))
+                    {
+                        remainingChars.Append("]");
+                        i += 1;
+                    }
+                    else if (isCloseBracket(charsToEvaluate, i))
+                    {
+                        t = new SqlToken(TokenTypes.BracketBody, oneBasedLineNumber, oneBasedStartCharacterIndex + offset);
+                        t.Text = remainingChars.ToString();
+                        tokens.Add(t);
+                        t = new SqlToken(TokenTypes.CloseBracket, oneBasedLineNumber, oneBasedStartCharacterIndex + i);
+                        t.Text = "]";
+                        tokens.Add(t);
+                        return tokens;
+                    }
+                    else
+                    {
+                        remainingChars.Append(charsToEvaluate[i]);
+                    }
+                    
+                }
+                //We didn't find a close bracket.
+
+                foreach (var b in tokens.Where(tok => tok.TokenType == TokenTypes.OpenBracket))
+                {
+                    b.IsOpen = true;
+                }
+
+                t = new SqlToken(TokenTypes.BracketBody, oneBasedLineNumber, oneBasedStartCharacterIndex + offset);
+                t.Text = new String(charsToEvaluate, offset, charsToEvaluate.Length - offset);
+                tokens.Add(t);
+                return tokens;
+            }
+
+            foreach (var b in tokens.Where(tok => tok.TokenType == TokenTypes.OpenBracket))
+            {
+                b.IsOpen = true;
+            }
+            return tokens;
+        }
+
 
         private static IList<SqlToken> ExtractStringTokens(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex, SqlToken openTokenIfAny = null)
         {
@@ -351,7 +435,7 @@ namespace TSqlFlex.SqlParser
             {
                 return false;
             }
-            return (theCharArray[0] == '-' && theCharArray[1] == '-');
+            return (theCharArray[zeroBasedStartCharacterIndex] == '-' && theCharArray[zeroBasedStartCharacterIndex + 1] == '-');
         }
         static private bool isBlockCommentStart(Char[] theCharArray, int zeroBasedStartCharacterIndex = 0)
         {
@@ -359,7 +443,11 @@ namespace TSqlFlex.SqlParser
             {
                 return false;
             }
-            return (theCharArray[0] == '/' && theCharArray[1] == '*');
+            return (theCharArray[zeroBasedStartCharacterIndex] == '/' && theCharArray[zeroBasedStartCharacterIndex + 1] == '*');
+        }
+        static private bool isOpenBracket(Char[] theCharArray, int zeroBasedStartCharacterIndex = 0)
+        {
+            return (theCharArray[zeroBasedStartCharacterIndex] == '[');
         }
         static private bool isBlockCommentEnd(Char[] theCharArray, int firstCharIndex)
         {
@@ -390,13 +478,29 @@ namespace TSqlFlex.SqlParser
             }
             return (theCharArray[firstCharIndex] == '\'' && theCharArray[firstCharIndex + 1] == '\'') ;
         }
-        static private bool isStringEnd(Char[] theCharAray, int firstCharIndex)
+        static private bool isStringEnd(Char[] theCharArray, int firstCharIndex)
         {
-            if (firstCharIndex == theCharAray.Length - 1)
+            if (firstCharIndex == theCharArray.Length - 1)
             {
-                return (theCharAray[firstCharIndex] == '\'');
+                return (theCharArray[firstCharIndex] == '\'');
             }
-            return (theCharAray[firstCharIndex] == '\'' && theCharAray[firstCharIndex+1] != '\'');
+            return (theCharArray[firstCharIndex] == '\'' && theCharArray[firstCharIndex+1] != '\'');
+        }
+        static private bool isCloseBracket(Char[] theCharArray, int firstCharIndex)
+        {
+            if (firstCharIndex == theCharArray.Length - 1)
+            {
+                return (theCharArray[firstCharIndex] == ']');
+            }
+            return (theCharArray[firstCharIndex] == ']' && theCharArray[firstCharIndex + 1] != ']');
+        }
+        static private bool isEscapedCloseBracket(Char[] theCharArray, int firstCharIndex)
+        {
+            if (firstCharIndex + 1 >= theCharArray.Length)
+            {
+                return false;
+            }
+            return (theCharArray[firstCharIndex] == ']' && theCharArray[firstCharIndex + 1] == ']');
         }
 
 

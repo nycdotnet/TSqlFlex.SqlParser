@@ -248,16 +248,120 @@ namespace TSqlFlex.SqlParser.Tests
         }
 
         [Test()]
-        public void RegularBracketizedTokens_ReturnCorrectlyResult()
+        public async void RegularBracketizedTokens_ReturnCorrectlyResult()
         {
-            Assert.Fail("Not implemented.");
+            int tokenIndex = 0;
+            var actualTask = SqlTokenizer.TokenizeAsync("SELECT 1 [z], 2 [yy]");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Keyword, 1, 1));
+            expected[tokenIndex].Text = "SELECT"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 7));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Unknown, 1, 8));
+            expected[tokenIndex].Text = "1"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 9));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.OpenBracket, 1, 10));
+            expected[tokenIndex].Text = "["; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.BracketBody, 1, 11));
+            expected[tokenIndex].Text = "z"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.CloseBracket, 1, 12));
+            expected[tokenIndex].Text = "]"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Comma, 1, 13));
+            expected[tokenIndex].Text = ","; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 14));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Unknown, 1, 15));
+            expected[tokenIndex].Text = "2"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 16));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.OpenBracket, 1, 17));
+            expected[tokenIndex].Text = "["; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.BracketBody, 1, 18));
+            expected[tokenIndex].Text = "yy"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.CloseBracket, 1, 20));
+            expected[tokenIndex].Text = "]"; tokenIndex += 1;
+            var actual = await actualTask;
+
+            TokenizerGeneralSyntaxTests.AssertArePropertiesEqual(expected, actual);
+        }
+
+
+        [Test()]
+        public async void DoubleOpenBracketTokens_ReturnCorrectlyResult()
+        {
+            int tokenIndex = 0;
+            var actualTask = SqlTokenizer.TokenizeAsync("SELECT 1 [[z]");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Keyword, 1, 1));
+            expected[tokenIndex].Text = "SELECT"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 7));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Unknown, 1, 8));
+            expected[tokenIndex].Text = "1"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 9));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.OpenBracket, 1, 10));
+            expected[tokenIndex].Text = "["; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.BracketBody, 1, 11));
+            expected[tokenIndex].Text = "[z"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.CloseBracket, 1, 13));
+            expected[tokenIndex].Text = "]"; tokenIndex += 1;
+            var actual = await actualTask;
+
+            TokenizerGeneralSyntaxTests.AssertArePropertiesEqual(expected, actual);
         }
 
         [Test()]
-        public void EscapedBracketizedTokens_ReturnCorrectlyResult()
+        public async void MidExtraOpenBracketTokens_ReturnCorrectlyResult()
         {
-            Assert.Fail("Not implemented.");
+            int tokenIndex = 0;
+            var actualTask = SqlTokenizer.TokenizeAsync("SELECT 1 [z[z]");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Keyword, 1, 1));
+            expected[tokenIndex].Text = "SELECT"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 7));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Unknown, 1, 8));
+            expected[tokenIndex].Text = "1"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 9));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.OpenBracket, 1, 10));
+            expected[tokenIndex].Text = "["; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.BracketBody, 1, 11));
+            expected[tokenIndex].Text = "z[z"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.CloseBracket, 1, 14));
+            expected[tokenIndex].Text = "]"; tokenIndex += 1;
+            var actual = await actualTask;
+
+            TokenizerGeneralSyntaxTests.AssertArePropertiesEqual(expected, actual);
         }
+
+        [Test()]
+        public async void EscaspedCloseBracketTokensAtStart_ReturnCorrectlyResult()
+        {
+            int tokenIndex = 0;
+            var actualTask = SqlTokenizer.TokenizeAsync("SELECT 1 []]z]");
+            var expected = new List<SqlToken>();
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Keyword, 1, 1));
+            expected[tokenIndex].Text = "SELECT"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 7));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Unknown, 1, 8));
+            expected[tokenIndex].Text = "1"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 9));
+            expected[tokenIndex].Text = " "; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.OpenBracket, 1, 10));
+            expected[tokenIndex].Text = "["; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.BracketBody, 1, 11));
+            expected[tokenIndex].Text = "]z"; tokenIndex += 1;
+            expected.Add(new SqlToken(SqlToken.TokenTypes.CloseBracket, 1, 14));
+            expected[tokenIndex].Text = "]"; tokenIndex += 1;
+            var actual = await actualTask;
+
+            TokenizerGeneralSyntaxTests.AssertArePropertiesEqual(expected, actual);
+        }
+
 
 
         //Thanks: http://stackoverflow.com/questions/318210/compare-equality-between-two-objects-in-nunit/
