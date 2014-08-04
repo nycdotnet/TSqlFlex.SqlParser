@@ -42,10 +42,16 @@ namespace TSqlFlex.SqlParser
         /// One-based line number
         /// </summary>
         public int LineNumber { get; set; }
+        
         /// <summary>
-        /// One-based character start index (starting from left)
+        /// One-based character start index (starting from left) of the token in the original SQL statement.
         /// </summary>
         public int StartCharacterIndex { get; set; }
+
+        /// <summary>
+        /// Length of the token.
+        /// </summary>
+        /// <remarks>Includes the length of required escape characters.  For example, the length of the string in PRINT ''''; is 2 even though the Text of it is '</remarks>
         public int Length { get {
             if (TokenType == TokenTypes.StringBody)
             {
@@ -57,7 +63,9 @@ namespace TSqlFlex.SqlParser
             }
             return Text.Length;
         } }
+        
         public string Text { get; set; }
+        
         /// <summary>
         /// Indicates if the block comment start token or string start token isn't known to be closed such as /* or '
         /// </summary>
