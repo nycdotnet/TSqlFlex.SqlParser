@@ -18,8 +18,7 @@ namespace TSqlFlex.SqlParser.Tests
         {
             var actualTask = SqlTokenizer.TokenizeAsync("");
             var expected = new List<SqlToken>();
-            var actual = await actualTask;
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expected, await actualTask);
         }
 
         [Test()]
@@ -29,9 +28,8 @@ namespace TSqlFlex.SqlParser.Tests
             var expected = new List<SqlToken>();
             expected.Add (new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 1));
             expected[0].Text = " ";
-            var actual = await actualTask;
 
-            Assert.That(actual, Is.EquivalentTo(expected));
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
         [Test()]
@@ -45,9 +43,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[1].Text = "\r\n";
             expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 2, 1));
             expected[2].Text = " ";
-            var actual = await actualTask;
 
-            Assert.That(actual, Is.EquivalentTo(expected));
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
         [Test()]
@@ -57,9 +54,8 @@ namespace TSqlFlex.SqlParser.Tests
             var expected = new List<SqlToken>();
             expected.Add(new SqlToken(SqlToken.TokenTypes.LineCommentStart, 1, 1));
             expected[0].Text = "--";
-            var actual = await actualTask;
 
-            Assert.That(actual, Is.EquivalentTo(expected));
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
         [Test()]
@@ -71,10 +67,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[0].Text = "'";
             expected.Add(new SqlToken(SqlToken.TokenTypes.StringEnd, 1, 2));
             expected[1].Text = "'";
-
-            var actual = await actualTask;
-
-            Assert.That(actual, Is.EquivalentTo(expected));
+            
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
         [Test()]
@@ -88,10 +82,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[1].Text = "test";
             expected.Add(new SqlToken(SqlToken.TokenTypes.StringEnd, 1, 6));
             expected[2].Text = "'";
-
-            var actual = await actualTask;
-
-            Assert.That(actual, Is.EquivalentTo(expected));
+            
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
         [Test()]
@@ -105,10 +97,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[1].Text = "' ";
             expected.Add(new SqlToken(SqlToken.TokenTypes.StringEnd, 1, 5));
             expected[2].Text = "'";
-
-            var actual = await actualTask;
-
-            Assert.That(actual, Is.EquivalentTo(expected));
+            
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
         [Test()]
@@ -122,10 +112,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[1].Text = " '";
             expected.Add(new SqlToken(SqlToken.TokenTypes.StringEnd, 1, 5));
             expected[2].Text = "'";
-
-            var actual = await actualTask;
-
-            Assert.That(actual, Is.EquivalentTo(expected));
+            
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
 
@@ -144,10 +132,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[3].Text = "testline2";
             expected.Add(new SqlToken(SqlToken.TokenTypes.StringEnd, 2, 10));
             expected[4].Text = "'";
-
-            var actual = await actualTask;
-
-            Assert.That(actual, Is.EquivalentTo(expected));
+            
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
         [Test()]
@@ -165,9 +151,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[3].Text = "\r\n";
             expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 2, 1));
             expected[4].Text = " ";
-            var actual = await actualTask;
 
-            Assert.That(actual, Is.EquivalentTo(expected));
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
         [Test()]
@@ -181,9 +166,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[1].Text = "test";
             expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentEnd, 1, 7));
             expected[2].Text = "*/";
-            var actual = await actualTask;
 
-            Assert.That(actual, Is.EquivalentTo(expected));
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
         [Test()]
@@ -199,9 +183,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[2].Text = "/*";
             expected.Add(new SqlToken(SqlToken.TokenTypes.BlockCommentEnd, 2, 3));
             expected[3].Text = "*/";
-            var actual = await actualTask;
-
-            Assert.That(actual, Is.EquivalentTo(expected));
+            
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
         [Test()]
@@ -225,9 +208,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[6].Text = "*/";
             expected.Add(new SqlToken(SqlToken.TokenTypes.Whitespace, 3, 4));
             expected[7].Text = " ";
-            var actual = await actualTask;
 
-            Assert.That(actual, Is.EquivalentTo(expected));
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
         [Test()]
@@ -243,9 +225,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[2].Text = "--";
             expected.Add(new SqlToken(SqlToken.TokenTypes.LineCommentBody, 1, 17));
             expected[3].Text = "this is junk";
-            var actual = await actualTask;
 
-            Assert.That(actual, Is.EquivalentTo(expected));
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
         [Test()]
@@ -282,9 +263,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[tokenIndex].Text = "yy"; tokenIndex += 1;
             expected.Add(new SqlToken(SqlToken.TokenTypes.CloseBracket, 1, 20));
             expected[tokenIndex].Text = "]"; tokenIndex += 1;
-            var actual = await actualTask;
 
-            Assert.That(actual, Is.EquivalentTo(expected));
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
 
@@ -308,9 +288,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[tokenIndex].Text = "[z"; tokenIndex += 1;
             expected.Add(new SqlToken(SqlToken.TokenTypes.CloseBracket, 1, 13));
             expected[tokenIndex].Text = "]"; tokenIndex += 1;
-            var actual = await actualTask;
 
-            Assert.That(actual, Is.EquivalentTo(expected));
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
         [Test()]
@@ -333,9 +312,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[tokenIndex].Text = "z[z"; tokenIndex += 1;
             expected.Add(new SqlToken(SqlToken.TokenTypes.CloseBracket, 1, 14));
             expected[tokenIndex].Text = "]"; tokenIndex += 1;
-            var actual = await actualTask;
 
-            Assert.That(actual, Is.EquivalentTo(expected));
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
         [Test()]
@@ -358,9 +336,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[tokenIndex].Text = "]z"; tokenIndex += 1;
             expected.Add(new SqlToken(SqlToken.TokenTypes.CloseBracket, 1, 14));
             expected[tokenIndex].Text = "]"; tokenIndex += 1;
-            var actual = await actualTask;
 
-            Assert.That(actual, Is.EquivalentTo(expected));
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
     }
 
@@ -385,9 +362,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[5].Text = " ";
             expected.Add(new SqlToken(SqlToken.TokenTypes.Unknown, 1, 15));
             expected[6].Text = "MyTable";
-            var actual = await actualTask;
 
-            Assert.That(actual, Is.EquivalentTo(expected));
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
 
         [Test()]
@@ -444,9 +420,8 @@ namespace TSqlFlex.SqlParser.Tests
             expected[tokenIndex].Text = ")"; tokenIndex += 1;
             expected.Add(new SqlToken(SqlToken.TokenTypes.Semicolon, 1, 55));
             expected[tokenIndex].Text = ";"; tokenIndex += 1;
-            var actual = await actualTask;
 
-            Assert.That(actual, Is.EquivalentTo(expected));
+            Assert.That(await actualTask, Is.EquivalentTo(expected));
         }
     }
 }

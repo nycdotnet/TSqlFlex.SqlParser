@@ -10,6 +10,8 @@ namespace TSqlFlex.SqlParser
 {
     public class SqlTokenizer
     {
+        private const string CRLF = "\r\n";
+
         /// <summary>
         /// Tokenizes the SQL statements in the stream
         /// </summary>
@@ -20,8 +22,8 @@ namespace TSqlFlex.SqlParser
             using (var ms = new MemoryStream())
             {
                 var sw = new StreamWriter(ms, Encoding.UTF8);
-                sw.Write(sql);
-                sw.Flush();
+                await sw.WriteAsync(sql);
+                await sw.FlushAsync();
                 ms.Position = 0;
                 return await TokenizeAsync(ms, Encoding.UTF8);
             }
@@ -39,8 +41,8 @@ namespace TSqlFlex.SqlParser
             {
                 encoding = Encoding.UTF8;
             }
-            List<SqlToken> tokens = new List<SqlToken>();
-            StreamReader sql = new StreamReader(sqlStream, encoding);
+            var tokens = new List<SqlToken>();
+            var sql = new StreamReader(sqlStream, encoding);
 
             int lineNumber = 0;
             
@@ -60,10 +62,10 @@ namespace TSqlFlex.SqlParser
                 
                 while (charIndex < line.Length)
                 {
-                    List<SqlToken> newTokens = SqlToken.ExtractTokens(line.Substring(charIndex, line.Length - charIndex).ToCharArray(), lineNumber, charIndex + 1, openToken).ToList();
-                    charIndex += LengthOfTokens(newTokens);
+                    var nextTokens = SqlToken.ExtractTokens(line.Substring(charIndex, line.Length - charIndex).ToCharArray(), lineNumber, charIndex + 1, openToken).ToArray();
+                    charIndex += LengthOfTokens(nextTokens);
                     
-                    foreach(SqlToken t in newTokens)
+                    foreach(SqlToken t in nextTokens)
                     {
                         if (t.IsOpen)
                         {
@@ -79,7 +81,7 @@ namespace TSqlFlex.SqlParser
                     }
                     else
                     {
-                        foreach (var t in newTokens)
+                        foreach (var t in nextTokens)
                         {
                             if (t.TokenType == SqlToken.TokenTypes.BlockCommentEnd && openToken.TokenType == SqlToken.TokenTypes.BlockCommentStart)
                             {
@@ -95,12 +97,12 @@ namespace TSqlFlex.SqlParser
                             }
                         }
                     }
-                    tokens.AddRange(newTokens);
+                    tokens.AddRange(nextTokens);
                 }
                 if (!sql.EndOfStream)
                 {
                     var newLineToken = new SqlToken(SqlToken.TokenTypes.Newline, lineNumber, line.Length + 1);
-                    newLineToken.Text = "\r\n";
+                    newLineToken.Text = CRLF;
                     tokens.Add(newLineToken);
                 }
             } while (!sql.EndOfStream);
@@ -108,14 +110,9 @@ namespace TSqlFlex.SqlParser
             return tokens;
         }
 
-        static private int LengthOfTokens(IEnumerable<SqlToken> tokens)
+        static private int LengthOfTokens(SqlToken[] tokens)
         {
-            int total = 0;
-            foreach (var item in tokens)
-            {
-                total += item.Length;
-            }
-            return total;
+            return tokens.Sum(t => t.Length);
         }
     }
 }

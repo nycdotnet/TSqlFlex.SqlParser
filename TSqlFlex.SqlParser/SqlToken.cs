@@ -41,13 +41,24 @@ namespace TSqlFlex.SqlParser
         /// One-based line number
         /// </summary>
         public int LineNumber { get; set; }
-        
+
         /// <summary>
         /// One-based character start index (starting from left) of the token in the original SQL statement.
         /// </summary>
         public int StartCharacterIndex { get; set; }
-       
-        public string Text { get; set; }
+
+        public string Text
+        {
+            get {
+                return new String(Chars);
+            }
+            set {
+                Chars = value.ToCharArray();
+            }
+        }
+
+        public char[] Chars { get; set; }
+
         
         /// <summary>
         /// Indicates if the block comment start token or string start token isn't known to be closed such as /* or '
@@ -60,7 +71,7 @@ namespace TSqlFlex.SqlParser
             LineNumber = oneBasedLineNumber;
             TokenType = type;
             IsOpen = false;
-            Text = null;
+            Chars = new Char[] { };
         }
 
         public bool Equals(SqlToken other)
@@ -68,7 +79,7 @@ namespace TSqlFlex.SqlParser
             return (TokenType == other.TokenType &&
                 LineNumber == other.LineNumber &&
                 StartCharacterIndex == other.StartCharacterIndex &&
-                Text == other.Text &&
+                Chars.SequenceEqual(other.Chars) &&
                 IsOpen == other.IsOpen);
         }
 
@@ -82,13 +93,13 @@ namespace TSqlFlex.SqlParser
             {
                 if (TokenType == TokenTypes.StringBody)
                 {
-                    return (Text.Replace("'", "''")).Length;
+                    return Chars.Sum(c => c == '\'' ? 2 : 1);
                 }
                 else if (TokenType == TokenTypes.BracketBody)
                 {
-                    return (Text.Replace("]", "]]")).Length;
+                    return Chars.Sum(c => c == ']' ? 2 : 1);
                 }
-                return Text.Length;
+                return Chars.Count();
             }
         }
 

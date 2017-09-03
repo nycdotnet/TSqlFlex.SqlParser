@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleExample.NetCoreApp2", "ConsoleExample.NetCoreApp2\ConsoleExample.NetCoreApp2.csproj", "{892D0316-F59F-4263-98F0-9EB47E16EA04}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleExample.DotNet462", "ConsoleExample.DotNet462\ConsoleExample.DotNet462.csproj", "{50558FCC-6783-49FD-9A7E-8A25033A6F55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{892D0316-F59F-4263-98F0-9EB47E16EA04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{892D0316-F59F-4263-98F0-9EB47E16EA04}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{892D0316-F59F-4263-98F0-9EB47E16EA04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50558FCC-6783-49FD-9A7E-8A25033A6F55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50558FCC-6783-49FD-9A7E-8A25033A6F55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50558FCC-6783-49FD-9A7E-8A25033A6F55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50558FCC-6783-49FD-9A7E-8A25033A6F55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

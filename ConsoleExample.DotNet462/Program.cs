@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using TSqlFlex.SqlParser;
 
-namespace Spike
+namespace ConsoleExample.DotNet462
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine($"Welcome to TSqlFlex.SqlParser running on .NET Core");
+            Console.WriteLine($"Welcome to TSqlFlex.SqlParser running on .NET 4.6.2");
             ParseSql("SELECT * FROM MyTable");
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();

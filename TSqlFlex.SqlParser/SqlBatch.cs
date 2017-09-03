@@ -8,7 +8,7 @@ namespace TSqlFlex.SqlParser
 {
     public class SqlBatch
     {
-        private List<object> Tokens = new List<object>();
+        private List<SqlToken> Tokens = new List<SqlToken>();
         private List<int> LineStartIndexes = new List<int>();
         private char[] BatchChars;
 
@@ -21,6 +21,7 @@ namespace TSqlFlex.SqlParser
 
         private void parseSqlBatch()
         {
+            // not fully implemented.
             int charIndex = 0;
             var parseState = ParseStates.Normal;
             while (charIndex < BatchChars.Length)
