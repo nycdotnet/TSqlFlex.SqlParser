@@ -19,7 +19,7 @@ namespace TSqlFlex.SqlParser
         {
             using (var ms = new MemoryStream())
             {
-                var sw = new StreamWriter(ms);
+                var sw = new StreamWriter(ms, Encoding.UTF8);
                 sw.Write(sql);
                 sw.Flush();
                 ms.Position = 0;
@@ -37,7 +37,7 @@ namespace TSqlFlex.SqlParser
         {
             if (encoding == null)
             {
-                encoding = Encoding.UTF8; //best guess
+                encoding = Encoding.UTF8;
             }
             List<SqlToken> tokens = new List<SqlToken>();
             StreamReader sql = new StreamReader(sqlStream, encoding);
@@ -48,7 +48,7 @@ namespace TSqlFlex.SqlParser
             int openTokenCount = 0;
             do
             {
-                string line = await sql.ReadLineAsync();
+                var line = await sql.ReadLineAsync();
                 if (line == null)
                 {
                     return tokens;
@@ -60,7 +60,7 @@ namespace TSqlFlex.SqlParser
                 
                 while (charIndex < line.Length)
                 {
-                    List<SqlToken> newTokens = SqlToken.ExtractTokens(line.Substring(charIndex, line.Length - charIndex).ToCharArray(), lineNumber, charIndex + 1, openToken).ToList<SqlToken>();
+                    List<SqlToken> newTokens = SqlToken.ExtractTokens(line.Substring(charIndex, line.Length - charIndex).ToCharArray(), lineNumber, charIndex + 1, openToken).ToList();
                     charIndex += LengthOfTokens(newTokens);
                     
                     foreach(SqlToken t in newTokens)
@@ -86,7 +86,8 @@ namespace TSqlFlex.SqlParser
                                 openTokenCount -= 1;
                                 openToken.IsOpen = false;
                                 openToken = null;
-                            } else if (t.TokenType == SqlToken.TokenTypes.StringEnd && openToken.TokenType == SqlToken.TokenTypes.StringStart)
+                            }
+                            else if (t.TokenType == SqlToken.TokenTypes.StringEnd && openToken.TokenType == SqlToken.TokenTypes.StringStart)
                             {
                                 openTokenCount -= 1;
                                 openToken.IsOpen = false;

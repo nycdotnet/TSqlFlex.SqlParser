@@ -1,13 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30626.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSqlFlex.SqlParser", "TSqlFlex.SqlParser\TSqlFlex.SqlParser.csproj", "{7633E837-631C-49BD-9264-C9B46E1D02B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSqlFlex.SqlParser", "TSqlFlex.SqlParser\TSqlFlex.SqlParser.csproj", "{8B17AE46-FFFE-42CC-BD63-F2726AC2B651}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSqlFlex.SqlParser.Tests", "TSqlFlex.SqlParser.Tests\TSqlFlex.SqlParser.Tests.csproj", "{C95C7CC7-59BB-4A4E-ADAE-9272BB145EC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSqlFlex.SqlParser.Tests", "TSqlFlex.SqlParser.Tests\TSqlFlex.SqlParser.Tests.csproj", "{DC4B1206-C2D7-47B7-B2A3-E802F41F6534}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spike", "Spike\Spike.csproj", "{2DE449CB-81B9-4735-B058-8E4828E26CE6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D43E1409-6BB4-4693-BE47-4D55535AFACA}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleExample.NetCoreApp2", "ConsoleExample.NetCoreApp2\ConsoleExample.NetCoreApp2.csproj", "{892D0316-F59F-4263-98F0-9EB47E16EA04}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,20 +20,23 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7633E837-631C-49BD-9264-C9B46E1D02B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7633E837-631C-49BD-9264-C9B46E1D02B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7633E837-631C-49BD-9264-C9B46E1D02B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7633E837-631C-49BD-9264-C9B46E1D02B8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C95C7CC7-59BB-4A4E-ADAE-9272BB145EC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C95C7CC7-59BB-4A4E-ADAE-9272BB145EC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C95C7CC7-59BB-4A4E-ADAE-9272BB145EC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C95C7CC7-59BB-4A4E-ADAE-9272BB145EC9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2DE449CB-81B9-4735-B058-8E4828E26CE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2DE449CB-81B9-4735-B058-8E4828E26CE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2DE449CB-81B9-4735-B058-8E4828E26CE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2DE449CB-81B9-4735-B058-8E4828E26CE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B17AE46-FFFE-42CC-BD63-F2726AC2B651}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B17AE46-FFFE-42CC-BD63-F2726AC2B651}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B17AE46-FFFE-42CC-BD63-F2726AC2B651}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B17AE46-FFFE-42CC-BD63-F2726AC2B651}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC4B1206-C2D7-47B7-B2A3-E802F41F6534}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC4B1206-C2D7-47B7-B2A3-E802F41F6534}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC4B1206-C2D7-47B7-B2A3-E802F41F6534}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC4B1206-C2D7-47B7-B2A3-E802F41F6534}.Release|Any CPU.Build.0 = Release|Any CPU
+		{892D0316-F59F-4263-98F0-9EB47E16EA04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{892D0316-F59F-4263-98F0-9EB47E16EA04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{892D0316-F59F-4263-98F0-9EB47E16EA04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{892D0316-F59F-4263-98F0-9EB47E16EA04}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9819BE11-21CA-4969-B6A9-4BA9E7C30ED3}
 	EndGlobalSection
 EndGlobal

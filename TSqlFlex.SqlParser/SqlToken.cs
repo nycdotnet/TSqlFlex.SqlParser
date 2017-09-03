@@ -5,9 +5,8 @@ using System.Text;
 
 namespace TSqlFlex.SqlParser
 {
-    public class SqlToken
+    public class SqlToken : IEquatable<SqlToken>
     {
-
         public const string BLOCK_COMMENT_START = "/*";
         public const string BLOCK_COMMENT_END = "*/";
         public const string LINE_COMMENT_TOKEN = "--";
@@ -47,23 +46,7 @@ namespace TSqlFlex.SqlParser
         /// One-based character start index (starting from left) of the token in the original SQL statement.
         /// </summary>
         public int StartCharacterIndex { get; set; }
-
-        /// <summary>
-        /// Length of the token.
-        /// </summary>
-        /// <remarks>Includes the length of required escape characters.  For example, the length of the string in PRINT ''''; is 2 even though the Text of it is '</remarks>
-        public int Length { get {
-            if (TokenType == TokenTypes.StringBody)
-            {
-                return (Text.Replace("'","''")).Length;
-            }
-            else if (TokenType == TokenTypes.BracketBody)
-            {
-                return (Text.Replace("]", "]]")).Length;
-            }
-            return Text.Length;
-        } }
-        
+       
         public string Text { get; set; }
         
         /// <summary>
@@ -71,14 +54,42 @@ namespace TSqlFlex.SqlParser
         /// </summary>
         public bool IsOpen { get; set; }
 
-        
-        
         public SqlToken(TokenTypes type, int oneBasedLineNumber, int oneBasedStartCharacterIndex)
         {
             StartCharacterIndex = oneBasedStartCharacterIndex;
             LineNumber = oneBasedLineNumber;
             TokenType = type;
             IsOpen = false;
+            Text = null;
+        }
+
+        public bool Equals(SqlToken other)
+        {
+            return (TokenType == other.TokenType &&
+                LineNumber == other.LineNumber &&
+                StartCharacterIndex == other.StartCharacterIndex &&
+                Text == other.Text &&
+                IsOpen == other.IsOpen);
+        }
+
+        /// <summary>
+        /// Length of the token.
+        /// </summary>
+        /// <remarks>Includes the length of required escape characters.  For example, the length of the string in PRINT ''''; is 2 even though the Text of it is '</remarks>
+        public int Length
+        {
+            get
+            {
+                if (TokenType == TokenTypes.StringBody)
+                {
+                    return (Text.Replace("'", "''")).Length;
+                }
+                else if (TokenType == TokenTypes.BracketBody)
+                {
+                    return (Text.Replace("]", "]]")).Length;
+                }
+                return Text.Length;
+            }
         }
 
         static public IList<SqlToken> ExtractTokens(Char[] charsToEvaluate, int oneBasedLineNumber, int oneBasedStartCharacterIndex, SqlToken openTokenIfAny)
@@ -510,7 +521,5 @@ namespace TSqlFlex.SqlParser
             }
             return (theCharArray[firstCharIndex] == ']' && theCharArray[firstCharIndex + 1] == ']');
         }
-
-
     }
 }

@@ -14,7 +14,7 @@ namespace TSqlFlex.SqlParser.Tests
     class TokenizerGeneralSyntaxTests
     {
         [Test()]
-        public async void WhenPassedEmptyString_ReturnsEmptyArray()
+        public async Task WhenPassedEmptyString_ReturnsEmptyArray()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("");
             var expected = new List<SqlToken>();
@@ -23,18 +23,19 @@ namespace TSqlFlex.SqlParser.Tests
         }
 
         [Test()]
-        public async void WhenPassedSingleSpace_ReturnsArrayWithOneWhitespaceToken()
+        public async Task WhenPassedSingleSpace_ReturnsArrayWithOneWhitespaceToken()
         {
             var actualTask = SqlTokenizer.TokenizeAsync(" ");
             var expected = new List<SqlToken>();
             expected.Add (new SqlToken(SqlToken.TokenTypes.Whitespace, 1, 1));
             expected[0].Text = " ";
             var actual = await actualTask;
-            AssertArePropertiesEqual(expected, actual);
+
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
         [Test()]
-        public async void WhenPassedWhitespaceSeparatedByNewline_ReturnsWhitespaceSeparatedByNewline()
+        public async Task WhenPassedWhitespaceSeparatedByNewline_ReturnsWhitespaceSeparatedByNewline()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("  \n ");
             var expected = new List<SqlToken>();
@@ -46,11 +47,11 @@ namespace TSqlFlex.SqlParser.Tests
             expected[2].Text = " ";
             var actual = await actualTask;
 
-            AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
         [Test()]
-        public async void LineCommentWithNoBody_ReturnsNoBody()
+        public async Task LineCommentWithNoBody_ReturnsNoBody()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("--");
             var expected = new List<SqlToken>();
@@ -58,11 +59,11 @@ namespace TSqlFlex.SqlParser.Tests
             expected[0].Text = "--";
             var actual = await actualTask;
 
-            AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
         [Test()]
-        public async void SimpleString_ReturnsNoBody()
+        public async Task SimpleString_ReturnsNoBody()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("''");
             var expected = new List<SqlToken>();
@@ -73,11 +74,11 @@ namespace TSqlFlex.SqlParser.Tests
 
             var actual = await actualTask;
 
-            AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
         [Test()]
-        public async void SimpleStringWithBody_ReturnsTheBody()
+        public async Task SimpleStringWithBody_ReturnsTheBody()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("'test'");
             var expected = new List<SqlToken>();
@@ -90,11 +91,11 @@ namespace TSqlFlex.SqlParser.Tests
 
             var actual = await actualTask;
 
-            AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
         [Test()]
-        public async void StringStartingWithEscapedQuote_ReturnsCorrectly()
+        public async Task StringStartingWithEscapedQuote_ReturnsCorrectly()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("''' '");
             var expected = new List<SqlToken>();
@@ -107,11 +108,11 @@ namespace TSqlFlex.SqlParser.Tests
 
             var actual = await actualTask;
 
-            AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
         [Test()]
-        public async void StringEndingWithEscapedQuote_ReturnsCorrectly()
+        public async Task StringEndingWithEscapedQuote_ReturnsCorrectly()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("' '''");
             var expected = new List<SqlToken>();
@@ -124,12 +125,12 @@ namespace TSqlFlex.SqlParser.Tests
 
             var actual = await actualTask;
 
-            AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
 
         [Test()]
-        public async void MultilineString_ParsesCorrectly()
+        public async Task MultilineString_ParsesCorrectly()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("'testline1\r\ntestline2'");
             var expected = new List<SqlToken>();
@@ -146,11 +147,11 @@ namespace TSqlFlex.SqlParser.Tests
 
             var actual = await actualTask;
 
-            AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
         [Test()]
-        public async void WhenPassedWhitespaceThenLineComment_ReturnsCorrectResult()
+        public async Task WhenPassedWhitespaceThenLineComment_ReturnsCorrectResult()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("   --This is a comment\n ");
             var expected = new List<SqlToken>();
@@ -166,11 +167,11 @@ namespace TSqlFlex.SqlParser.Tests
             expected[4].Text = " ";
             var actual = await actualTask;
 
-            AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
         [Test()]
-        public async void SimpleBlockComment_ReturnsCorrectResult()
+        public async Task SimpleBlockComment_ReturnsCorrectResult()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("/*test*/");
             var expected = new List<SqlToken>();
@@ -182,11 +183,11 @@ namespace TSqlFlex.SqlParser.Tests
             expected[2].Text = "*/";
             var actual = await actualTask;
 
-            AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
         [Test()]
-        public async void BlockCommentWithInternalBlockCommentStart_ReturnsCorrectResult()
+        public async Task BlockCommentWithInternalBlockCommentStart_ReturnsCorrectResult()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("/*\r\n/**/");
             var expected = new List<SqlToken>();
@@ -200,11 +201,11 @@ namespace TSqlFlex.SqlParser.Tests
             expected[3].Text = "*/";
             var actual = await actualTask;
 
-            AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
         [Test()]
-        public async void MultilineBlockComment_ReturnsCorrectResult()
+        public async Task MultilineBlockComment_ReturnsCorrectResult()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("/* \n test\n */ ");
             var expected = new List<SqlToken>();
@@ -226,11 +227,11 @@ namespace TSqlFlex.SqlParser.Tests
             expected[7].Text = " ";
             var actual = await actualTask;
 
-            AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
         [Test()]
-        public async void JunkFollowedByWhitespaceAndLineComment_ReturnsCorrectResult()
+        public async Task JunkFollowedByWhitespaceAndLineComment_ReturnsCorrectResult()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("lijdfisuyndfk --this is junk");
             var expected = new List<SqlToken>();
@@ -244,11 +245,11 @@ namespace TSqlFlex.SqlParser.Tests
             expected[3].Text = "this is junk";
             var actual = await actualTask;
 
-            AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
         [Test()]
-        public async void RegularBracketizedTokens_ReturnCorrectlyResult()
+        public async Task RegularBracketizedTokens_ReturnCorrectlyResult()
         {
             int tokenIndex = 0;
             var actualTask = SqlTokenizer.TokenizeAsync("SELECT 1 [z], 2 [yy]");
@@ -283,12 +284,12 @@ namespace TSqlFlex.SqlParser.Tests
             expected[tokenIndex].Text = "]"; tokenIndex += 1;
             var actual = await actualTask;
 
-            TokenizerGeneralSyntaxTests.AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
 
         [Test()]
-        public async void DoubleOpenBracketTokens_ReturnCorrectlyResult()
+        public async Task DoubleOpenBracketTokens_ReturnCorrectlyResult()
         {
             int tokenIndex = 0;
             var actualTask = SqlTokenizer.TokenizeAsync("SELECT 1 [[z]");
@@ -309,11 +310,11 @@ namespace TSqlFlex.SqlParser.Tests
             expected[tokenIndex].Text = "]"; tokenIndex += 1;
             var actual = await actualTask;
 
-            TokenizerGeneralSyntaxTests.AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
         [Test()]
-        public async void MidExtraOpenBracketTokens_ReturnCorrectlyResult()
+        public async Task MidExtraOpenBracketTokens_ReturnCorrectlyResult()
         {
             int tokenIndex = 0;
             var actualTask = SqlTokenizer.TokenizeAsync("SELECT 1 [z[z]");
@@ -334,11 +335,11 @@ namespace TSqlFlex.SqlParser.Tests
             expected[tokenIndex].Text = "]"; tokenIndex += 1;
             var actual = await actualTask;
 
-            TokenizerGeneralSyntaxTests.AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
         [Test()]
-        public async void EscaspedCloseBracketTokensAtStart_ReturnCorrectlyResult()
+        public async Task EscaspedCloseBracketTokensAtStart_ReturnCorrectlyResult()
         {
             int tokenIndex = 0;
             var actualTask = SqlTokenizer.TokenizeAsync("SELECT 1 []]z]");
@@ -359,25 +360,14 @@ namespace TSqlFlex.SqlParser.Tests
             expected[tokenIndex].Text = "]"; tokenIndex += 1;
             var actual = await actualTask;
 
-            TokenizerGeneralSyntaxTests.AssertArePropertiesEqual(expected, actual);
-        }
-
-
-
-        //Thanks: http://stackoverflow.com/questions/318210/compare-equality-between-two-objects-in-nunit/
-        public static void AssertArePropertiesEqual(object expected, object actual)
-        {
-            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            var expectedJson = serializer.Serialize(expected);
-            var actualJson = serializer.Serialize(actual);
-            Assert.AreEqual(expectedJson, actualJson, "expected: " + expectedJson + "\r\n" + "  actual:   " + actualJson);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
     }
 
     class TokenizerSqlStatementTests
     {
         [Test()]
-        public async void BasicSelectStarQuery_ReturnsSameTokensPlusUnknownForTableName()
+        public async Task BasicSelectStarQuery_ReturnsSameTokensPlusUnknownForTableName()
         {
             var actualTask = SqlTokenizer.TokenizeAsync("SELECT * FROM MyTable");
             var expected = new List<SqlToken>();
@@ -397,11 +387,11 @@ namespace TSqlFlex.SqlParser.Tests
             expected[6].Text = "MyTable";
             var actual = await actualTask;
 
-            TokenizerGeneralSyntaxTests.AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
         [Test()]
-        public async void BasicInsertQuery_ReturnsSameTokensPlusUnknownForTableName()
+        public async Task BasicInsertQuery_ReturnsSameTokensPlusUnknownForTableName()
         {
             int tokenIndex = 0;
             var actualTask = SqlTokenizer.TokenizeAsync("INSERT INTO MyTable (Field1, Field2) VALUES ('X', 123);");
@@ -456,7 +446,7 @@ namespace TSqlFlex.SqlParser.Tests
             expected[tokenIndex].Text = ";"; tokenIndex += 1;
             var actual = await actualTask;
 
-            TokenizerGeneralSyntaxTests.AssertArePropertiesEqual(expected, actual);
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
     }
 }

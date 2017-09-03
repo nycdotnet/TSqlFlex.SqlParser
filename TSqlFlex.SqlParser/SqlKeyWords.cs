@@ -76,12 +76,12 @@ namespace TSqlFlex.SqlParser
                 var testChar = char.ToUpper(theCharAray[charIndex]);
                 if (possibleKeyWords == null)
                 {
-                    possibleKeyWords = SqlKeywords.Where(k => k[charIndex] == theCharAray[charIndex]).ToList<string>();
+                    possibleKeyWords = SqlKeywords.Where(k => k[charIndex] == theCharAray[charIndex]).ToList();
                 }
                 else
                 {
                     //narrow down the list from the previous list
-                    possibleKeyWords = possibleKeyWords.Where(s => s[charIndex] == theCharAray[charIndex]).ToList<string>();
+                    possibleKeyWords = possibleKeyWords.Where(s => s[charIndex] == theCharAray[charIndex]).ToList();
                 }
 
                 if (possibleKeyWords == null || possibleKeyWords.Count == 0)
